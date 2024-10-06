@@ -2,7 +2,7 @@ package com.ecommerce.user_service.config.user;
 
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.UserRole;
-import com.ecommerce.user_service.repositories.UserRepository;
+import com.ecommerce.user_service.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class InitialUser implements CommandLineRunner {
 
-    private final UserRepository repository;
+    private final UserRepo repository;
     private final PasswordEncoder passwordEncoder;
 
     @Override

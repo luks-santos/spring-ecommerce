@@ -1,6 +1,6 @@
 package com.ecommerce.user_service.config.user;
 
-import com.ecommerce.user_service.repositories.UserRepository;
+import com.ecommerce.user_service.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImp implements UserDetailsService {
 
-    private final UserRepository repository;
+    private final UserRepo repository;
 
 
     @Override

@@ -1,7 +1,7 @@
 package com.ecommerce.user_service.config;
 
 import com.ecommerce.user_service.config.user.UserDetailsImp;
-import com.ecommerce.user_service.repositories.UserRepository;
+import com.ecommerce.user_service.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +15,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class JwtTokenUtils {
 
-    private final UserRepository userRepository;
+    private final UserRepo userRepo;
 
     public String getUserName(Jwt jwtToken) {
         return jwtToken.getSubject();
@@ -35,7 +35,7 @@ public class JwtTokenUtils {
 
 
     public UserDetails userDetails(String email) {
-        return userRepository
+        return userRepo
                 .findByEmail(email)
                 .map(UserDetailsImp::new)
                 .orElseThrow(() -> new UsernameNotFoundException("UserEmail: " + email + " does not exist"));

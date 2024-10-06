@@ -2,7 +2,7 @@ package com.ecommerce.user_service.config.jwt;
 
 import com.ecommerce.user_service.config.JwtTokenUtils;
 import com.ecommerce.user_service.config.RSAKeyRecord;
-import com.ecommerce.user_service.enums.TokenType;
+import com.ecommerce.user_service.repositories.RefreshTokenRepo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,10 +27,11 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @Slf4j
-public class JwtAccessTokenFilter extends OncePerRequestFilter {
+public class JwtRefreshTokenFilter extends OncePerRequestFilter {
 
     private final RSAKeyRecord rsaKeyRecord;
     private final JwtTokenUtils jwtTokenUtils;
+    private final RefreshTokenRepo refreshTokenRepo;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,27 +39,33 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         try {
-            log.info("[JwtAccessTokenFilter:doFilterInternal] :: Started ");
+            log.info("[JwtRefreshTokenFilter:doFilterInternal] :: Started ");
 
-            log.info("[JwtAccessTokenFilter:doFilterInternal] Filtering the Http Request:{}", request.getRequestURI());
+            log.info("[JwtRefreshTokenFilter:doFilterInternal]Filtering the Http Request:{}", request.getRequestURI());
+
 
             final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-            JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.rsaPublicKey()).build();
-
-            if (!authHeader.startsWith(TokenType.Bearer.name())) {
+            if (!authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
+            JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaKeyRecord.rsaPublicKey()).build();
+
             final String token = authHeader.substring(7);
-            final Jwt jwtToken = jwtDecoder.decode(token);
-            final String userName = jwtTokenUtils.getUserName(jwtToken);
+            final Jwt jwtRefreshToken = jwtDecoder.decode(token);
+            final String userName = jwtTokenUtils.getUserName(jwtRefreshToken);
 
             if (!userName.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
+                //Check if refreshToken isPresent in database and is valid
+                var r = refreshTokenRepo.findByRefreshToken(jwtRefreshToken.getTokenValue());
+                var isRefreshTokenValidInDatabase = refreshTokenRepo.findByRefreshToken(jwtRefreshToken.getTokenValue())
+                        .map(refreshTokenEntity -> !refreshTokenEntity.isRevoked())
+                        .orElse(false);
 
                 UserDetails userDetails = jwtTokenUtils.userDetails(userName);
-                if (jwtTokenUtils.isTokenValid(jwtToken, userDetails)) {
+                if (jwtTokenUtils.isTokenValid(jwtRefreshToken, userDetails) && isRefreshTokenValidInDatabase) {
                     SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 
                     UsernamePasswordAuthenticationToken createdToken = new UsernamePasswordAuthenticationToken(
@@ -66,16 +73,16 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
                             null,
                             userDetails.getAuthorities()
                     );
+
                     createdToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     securityContext.setAuthentication(createdToken);
                     SecurityContextHolder.setContext(securityContext);
                 }
             }
-            log.info("[JwtAccessTokenFilter:doFilterInternal] Completed");
-
+            log.info("[JwtRefreshTokenFilter:doFilterInternal] Completed");
             filterChain.doFilter(request, response);
         } catch (JwtValidationException jwtValidationException) {
-            log.error("[JwtAccessTokenFilter:doFilterInternal] Exception due to :{}", jwtValidationException.getMessage());
+            log.error("[JwtRefreshTokenFilter:doFilterInternal] Exception due to :{}", jwtValidationException.getMessage());
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, jwtValidationException.getMessage());
         }
     }

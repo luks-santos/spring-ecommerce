@@ -1,6 +1,8 @@
 package com.ecommerce.user_service.config.user;
 
 import com.ecommerce.user_service.entities.User;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

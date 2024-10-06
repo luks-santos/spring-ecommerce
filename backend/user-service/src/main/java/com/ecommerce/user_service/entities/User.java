@@ -3,8 +3,7 @@ package com.ecommerce.user_service.entities;
 import com.ecommerce.user_service.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,6 +13,9 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "user")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id

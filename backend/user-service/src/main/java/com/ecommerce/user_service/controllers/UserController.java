@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
 
+    //@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_CLIENT')")
+    @PreAuthorize("hasAuthority('SCOPE_READ')")
     @GetMapping("/welcome-message")
     public ResponseEntity<String> getFirstWelcomeMessage(Authentication authentication) {
         return ResponseEntity.ok("Welcome to the JWT Tutorial:" + authentication.getName() + "with scope:" + authentication.getAuthorities());

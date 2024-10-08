@@ -1,6 +1,7 @@
 package com.ecommerce.user_service.mapper;
 
 
+import com.ecommerce.user_service.dtos.UserDTO;
 import com.ecommerce.user_service.dtos.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.User;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,16 @@ public class UserMapper {
                 .address(dto.address())
                 .phone(dto.phone())
                 .role(dto.role())
+                .build();
+    }
+
+    public UserDTO toDTO(User entity) {
+        return UserDTO.builder()
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
+                .email(entity.getEmail())
+                .phone(entity.getPhone())
+                .address(entity.getPhone())
                 .build();
     }
 }

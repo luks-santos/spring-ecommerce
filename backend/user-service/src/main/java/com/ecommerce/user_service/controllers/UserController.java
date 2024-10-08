@@ -1,23 +1,20 @@
 package com.ecommerce.user_service.controllers;
 
+import com.ecommerce.user_service.dtos.UserDTO;
+import com.ecommerce.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
+    private final UserService service;
 
-    //@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_CLIENT')")
-    @PreAuthorize("hasAuthority('SCOPE_READ')")
-    @GetMapping("/welcome-message")
-    public ResponseEntity<String> getFirstWelcomeMessage(Authentication authentication) {
-        return ResponseEntity.ok("Welcome to the JWT Tutorial:" + authentication.getName() + "with scope:" + authentication.getAuthorities());
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserDTO> update(@PathVariable Long id,  @RequestBody UserDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 }

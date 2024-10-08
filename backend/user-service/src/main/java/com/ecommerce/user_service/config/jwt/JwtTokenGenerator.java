@@ -69,7 +69,7 @@ public class JwtTokenGenerator {
             permissions.addAll(List.of("READ", "WRITE", "DELETE"));
         }
         if (roles.contains("ROLE_CLIENT")) {
-            permissions.add("READ");
+            permissions.addAll(List.of("READ", "WRITE"));
         }
 
         return String.join(" ", permissions);

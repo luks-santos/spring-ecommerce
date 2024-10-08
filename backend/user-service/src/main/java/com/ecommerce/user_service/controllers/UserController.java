@@ -13,8 +13,15 @@ public class UserController {
 
     private final UserService service;
 
+    @GetMapping(value = "/logged-user")
+    public ResponseEntity<UserDTO> getLoggedUser() {
+        return ResponseEntity.ok(service.getLoggedUserDTO());
+    }
+
     @PutMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable Long id,  @RequestBody UserDTO dto) {
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
+
+
 }

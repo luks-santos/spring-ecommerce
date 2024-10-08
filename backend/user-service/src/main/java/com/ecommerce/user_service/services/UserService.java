@@ -46,6 +46,9 @@ public class UserService {
         return mapper.toDTO(repository.save(userToUpdate));
     }
 
+    public UserDTO getLoggedUserDTO() {
+        return mapper.toDTO(getLoggedUser());
+    }
 
     public User getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

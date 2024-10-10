@@ -9,6 +9,7 @@ import com.ecommerce.user_service.enums.TokenType;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.RefreshTokenRepo;
 import com.ecommerce.user_service.repositories.UserRepo;
+import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -129,7 +130,7 @@ public class AuthService {
 
             Optional<User> user = repository.findByEmail(userRegistrationDto.email());
             if (user.isPresent()) {
-                throw new Exception("User Already Exist");
+                throw new EntityExistsException("User Already Exist");
             }
 
             User userEntity = userMapper.toEntity(userRegistrationDto);
@@ -144,7 +145,7 @@ public class AuthService {
 
             createRefreshTokenCookie(httpServletResponse, refreshToken);
 
-            log.info("[AuthService:registerUser] User:{} Successfully registered", savedUser.getEmail());
+            log.info("[AuthService:registerUser]User:{} Successfully registered", savedUser.getEmail());
             return AuthResponseDTO.builder()
                     .accessToken(accessToken)
                     .accessTokenExpiry(5 * 60)
@@ -154,7 +155,7 @@ public class AuthService {
 
 
         } catch (Exception e) {
-            log.error("[AuthService:registerUser]Exception while registering the user due to :" + e.getMessage());
+            log.error("[AuthService:registerUser]Exception while registering the user due to :{}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 

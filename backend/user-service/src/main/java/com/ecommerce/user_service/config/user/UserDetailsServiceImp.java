@@ -16,7 +16,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        System.out.println("Estou no service para realizar a autenticação " + email);
         return repository
                 .findByEmail(email)
                 .map(UserDetailsImp::new)

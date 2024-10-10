@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/account")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -18,9 +18,9 @@ public class UserController {
         return ResponseEntity.ok(service.getLoggedUserDTO());
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+    @PutMapping(value = "/update_profile")
+    public ResponseEntity<UserDTO> update(@RequestBody UserDTO dto) {
+        return ResponseEntity.ok(service.update(dto));
     }
 
 

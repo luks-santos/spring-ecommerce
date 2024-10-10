@@ -5,13 +5,12 @@ import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.UserRepo;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @Service
@@ -21,29 +20,18 @@ public class UserService {
     private final UserRepo repository;
     private final UserMapper mapper;
 
-    public UserDTO update(Long id, UserDTO dto) {
+    public UserDTO update(@Valid UserDTO dto) {
 
-        log.info("[UserService:update(id, dto)] Update process started for user with id {}", id);
+        User loggedUserToUpdate = getLoggedUser();
 
-        User loggedUser = getLoggedUser();
+        log.info("[UserService:update(id, dto)] Update process started for user with id {}", loggedUserToUpdate.getId());
 
-        User userToUpdate = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("[UserService:update(id, dto)] User with id {} not found", id);
-                    return new EntityNotFoundException("User with the provided ID does not exist.");
-                });
+        loggedUserToUpdate.setFirstName(dto.firstName());
+        loggedUserToUpdate.setLastName(dto.lastName());
+        loggedUserToUpdate.setAddress(dto.address());
+        loggedUserToUpdate.setPhone(dto.phone());
 
-        if (!loggedUser.getId().equals(userToUpdate.getId())) {
-            log.warn("[UserService:update(id, dto)] User {} attempted to update another user's information.", loggedUser.getId());
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to modify another user's data.");
-        }
-
-        userToUpdate.setFirstName(dto.firstName());
-        userToUpdate.setLastName(dto.lastName());
-        userToUpdate.setPhone(dto.phone());
-        userToUpdate.setAddress(dto.address());
-
-        return mapper.toDTO(repository.save(userToUpdate));
+        return mapper.toDTO(repository.save(loggedUserToUpdate));
     }
 
     public UserDTO getLoggedUserDTO() {
@@ -54,7 +42,7 @@ public class UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return repository.findByEmail(authentication.getName())
                 .orElseThrow(() -> {
-                    log.error("[UserService:getLoggedUser] Logged in user with email {} not found", authentication.getName());
+                    log.error("[UserService:getLoggedUser]Logged in user with email {} not found", authentication.getName());
                     return new EntityNotFoundException("Authenticated user not found.");
                 });
     }

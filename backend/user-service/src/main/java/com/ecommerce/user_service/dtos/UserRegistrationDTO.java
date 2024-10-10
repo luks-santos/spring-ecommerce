@@ -13,7 +13,9 @@ public record UserRegistrationDTO(
         @Email(message = "Invalid email format")
         @NotEmpty(message = "User email must not be empty")
         String email,
+        @NotEmpty(message = "User phone must not be empty")
         String phone,
+        @NotEmpty(message = "User address must not be empty")
         String address,
         @NotEmpty(message = "User password must not be empty")
         String password,

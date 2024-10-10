@@ -1,8 +1,21 @@
 package com.ecommerce.user_service.dtos;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 
 @Builder
-public record UserDTO(Long id, String firstName, String lastName, String email, String phone, String address) {
+public record UserDTO(Long id,
+                      @NotEmpty(message = "User first name must not be empty")
+                      String firstName,
+                      @NotEmpty(message = "User last name must not be empty")
+                      String lastName,
+                      @Email(message = "Invalid email format")
+                      @NotEmpty(message = "User email must not be empty")
+                      String email,
+                      @NotEmpty(message = "User phone must not be empty")
+                      String phone,
+                      @NotEmpty(message = "User address must not be empty")
+                      String address
+) {
 }

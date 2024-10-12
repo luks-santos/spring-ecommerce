@@ -130,7 +130,7 @@ public class AuthService {
 
             Optional<User> user = repository.findByEmail(userRegistrationDto.email());
             if (user.isPresent()) {
-                throw new EntityExistsException("User Already Exist");
+                throw new EntityExistsException("User Already Exist.");
             }
 
             User userEntity = userMapper.toEntity(userRegistrationDto);

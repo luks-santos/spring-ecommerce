@@ -1,6 +1,7 @@
 package com.ecommerce.user_service.services.common;
 
 import com.ecommerce.user_service.dtos.UserDTO;
+import com.ecommerce.user_service.dtos.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.UserRole;
 
@@ -41,7 +42,7 @@ public class UserConstants {
             .refreshTokens(new ArrayList<>())
             .build();
 
-    public static  final User INVALID_USER = User.builder()
+    public static final User INVALID_USER = User.builder()
             .id(1L)
             .firstName(" ")
             .lastName(" ")
@@ -53,4 +54,8 @@ public class UserConstants {
             .createdAt(LocalDateTime.now())
             .refreshTokens(new ArrayList<>())
             .build();
+
+    public static final UserRegistrationDTO USER_REGISTRATION_DTO = new UserRegistrationDTO(
+            "First Name", "Last Name", "user@example.com", "phone",  "address", "password", UserRole.ROLE_CLIENT
+    );
 }

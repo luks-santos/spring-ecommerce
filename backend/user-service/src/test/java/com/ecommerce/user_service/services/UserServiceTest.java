@@ -1,10 +1,11 @@
 package com.ecommerce.user_service.services;
 
-import com.ecommerce.user_service.repositories.UserRepo;
 import com.ecommerce.user_service.dtos.UserDTO;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.mapper.UserMapper;
+import com.ecommerce.user_service.repositories.UserRepo;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +19,6 @@ import java.util.Optional;
 
 import static com.ecommerce.user_service.services.common.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -43,6 +43,11 @@ class UserServiceTest {
     @InjectMocks
     private UserService service;
 
+    @BeforeEach
+    public void setup() {
+        stubAuthentication();
+    }
+
     //todo método-test=operacao_estado_retorno
 
     private void stubAuthentication() {
@@ -54,7 +59,6 @@ class UserServiceTest {
 
     @Test
     void update_WithValidData_ReturnsUserDTO() {
-        stubAuthentication();
         // Mock repository and mapper behavior
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(USER));
         when(userRepo.save(any(User.class))).thenReturn(USER);
@@ -69,7 +73,6 @@ class UserServiceTest {
 
     @Test
     void update_WithInvalidData_ThrowsException() {
-        stubAuthentication();
         // Mock repository and mapper behavior
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(USER));
         when(userRepo.save(INVALID_USER)).thenThrow(RuntimeException.class);
@@ -80,7 +83,6 @@ class UserServiceTest {
 
     @Test
     void getLoggedUserDTO_WithValidData_ReturnsUserDTO() {
-        stubAuthentication();
         // Mock repository
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(USER));
         when(userMapper.toDTO(any(User.class))).thenReturn(USER_DTO);
@@ -94,11 +96,12 @@ class UserServiceTest {
 
     @Test
     void getLoggedUserDTO_WithInvalidData_ReturnsEntityNotFoundException() {
-        stubAuthentication();
         // Mock repository
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Validate the result
-        assertThatThrownBy(() -> service.getLoggedUserDTO()).isExactlyInstanceOf(EntityNotFoundException.class);
+        assertThatThrownBy(() -> service.getLoggedUserDTO())
+                .isExactlyInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Authenticated user not found.");
     }
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,8 @@ public class LogoutHandlerService implements LogoutHandler {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (!authHeader.startsWith(TokenType.Bearer.name())) {
-            return;
+        if (authHeader == null || !authHeader.startsWith(TokenType.Bearer.name())) {
+            throw new BadCredentialsException("Invalid authentication token type. Expected Bearer token.");
         }
 
         final String refreshToken = authHeader.substring(7);

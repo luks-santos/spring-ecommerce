@@ -155,7 +155,7 @@ public class AuthService {
 
 
         } catch (Exception e) {
-            log.error("[AuthService:registerUser]Exception while registering the user due to :{}", e.getMessage());
+            log.error("[AuthService:registerUser]Exception while registering the user due to : {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 

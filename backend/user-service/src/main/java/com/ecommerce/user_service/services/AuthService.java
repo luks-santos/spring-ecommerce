@@ -6,10 +6,10 @@ import com.ecommerce.user_service.dtos.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.TokenType;
+import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.RefreshTokenRepo;
 import com.ecommerce.user_service.repositories.UserRepo;
-import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -39,7 +38,7 @@ public class AuthService {
             var user = repository.findByEmail(authentication.getName())
                     .orElseThrow(() -> {
                         log.error("[AuthService:userSignInAuth] User :{} not found", authentication.getName());
-                        return new ResponseStatusException(HttpStatus.NOT_FOUND, "USER NOT FOUND ");
+                        return new ApiException(HttpStatus.NOT_FOUND, "User not found.");
                     });
 
             String accessToken = jwtTokenGenerator.generateAccessToken(authentication);
@@ -51,14 +50,18 @@ public class AuthService {
             log.info("[AuthService:userSignInAuth] Access token for user:{}, has been generated", user.getEmail());
             return AuthResponseDTO.builder()
                     .accessToken(accessToken)
-                    .accessTokenExpiry(15 * 60)
+                    .accessTokenExpiry(5 * 60)
                     .userName(user.getEmail())
                     .tokenType(TokenType.Bearer)
                     .build();
 
-        } catch (Exception e) {
+        } catch (ApiException e) {
             log.error("[AuthService:userSignInAuth]Exception while authenticating the user due to :{}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Please Try Again");
+            throw e;
+        }
+        catch (Exception e) {
+            log.error("[AuthService:userSignInAuth] Unexpected exception while sign-in in the user: {}", e.getMessage());
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred during user sign-in", e);
         }
     }
 
@@ -79,33 +82,43 @@ public class AuthService {
         response.addCookie(refreshTokenCookie);
     }
 
-    public Object getAccessTokenUsingRefreshToken(String authorizationHeader) {
+    public AuthResponseDTO getAccessTokenUsingRefreshToken(String authorizationHeader) {
+        try {
+            if (authorizationHeader == null || !authorizationHeader.startsWith(TokenType.Bearer.name())) {
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Please verify your token type.");
+            }
 
-        if (!authorizationHeader.startsWith(TokenType.Bearer.name())) {
-            return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Please verify your token type");
+            final String refreshToken = authorizationHeader.substring(7);
+
+            //Find refreshToken from database and should not be revoked : Same thing can be done through filter.
+            var refreshTokenEntity = refreshTokenRepo.findByRefreshToken(refreshToken)
+                    .filter(tokens -> !tokens.isRevoked())
+                    .orElseThrow(() -> new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Refresh token revoked."));
+
+            User user = refreshTokenEntity.getUser();
+
+            //Now create the Authentication object
+            Authentication authentication = createAuthenticationObject(user);
+
+            //Use the authentication object to generate new accessToken as the Authentication object that we will have may not contain correct role.
+            String accessToken = jwtTokenGenerator.generateAccessToken(authentication);
+
+            return AuthResponseDTO.builder()
+                    .accessToken(accessToken)
+                    .accessTokenExpiry(5 * 60)
+                    .userName(user.getEmail())
+                    .tokenType(TokenType.Bearer)
+                    .build();
+
+        } catch (ApiException e) {
+            log.error("[AuthService:getAccessTokenUsingRefreshToken]Exception while getting access token using refresh token: {}", e.getMessage());
+            throw e;
+        }
+        catch (Exception e) {
+            log.error("[AuthService:getAccessTokenUsingRefreshToken]Unexpected exception while getting access token using refresh token: {}", e.getMessage());
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error while getting access token using refresh token", e);
         }
 
-        final String refreshToken = authorizationHeader.substring(7);
-
-        //Find refreshToken from database and should not be revoked : Same thing can be done through filter.
-        var refreshTokenEntity = refreshTokenRepo.findByRefreshToken(refreshToken)
-                .filter(tokens -> !tokens.isRevoked())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Refresh token revoked"));
-
-        User user = refreshTokenEntity.getUser();
-
-        //Now create the Authentication object
-        Authentication authentication = createAuthenticationObject(user);
-
-        //Use the authentication object to generate new accessToken as the Authentication object that we will have may not contain correct role.
-        String accessToken = jwtTokenGenerator.generateAccessToken(authentication);
-
-        return AuthResponseDTO.builder()
-                .accessToken(accessToken)
-                .accessTokenExpiry(5 * 60)
-                .userName(user.getEmail())
-                .tokenType(TokenType.Bearer)
-                .build();
     }
 
     private static Authentication createAuthenticationObject(User user) {
@@ -130,7 +143,7 @@ public class AuthService {
 
             Optional<User> user = repository.findByEmail(userRegistrationDto.email());
             if (user.isPresent()) {
-                throw new EntityExistsException("User Already Exist.");
+                throw new ApiException("User Already Exist.");
             }
 
             User userEntity = userMapper.toEntity(userRegistrationDto);
@@ -145,7 +158,7 @@ public class AuthService {
 
             createRefreshTokenCookie(httpServletResponse, refreshToken);
 
-            log.info("[AuthService:registerUser]User:{} Successfully registered", savedUser.getEmail());
+            log.info("[AuthService:registerUser]User: {} Successfully registered", savedUser.getEmail());
             return AuthResponseDTO.builder()
                     .accessToken(accessToken)
                     .accessTokenExpiry(5 * 60)
@@ -153,11 +166,13 @@ public class AuthService {
                     .tokenType(TokenType.Bearer)
                     .build();
 
-
-        } catch (Exception e) {
+        } catch (ApiException e) {
             log.error("[AuthService:registerUser]Exception while registering the user due to : {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw e;
         }
-
+        catch (Exception e) {
+            log.error("[AuthService:registerUser]Unexpected exception while registering the user: {}", e.getMessage());
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred during user registration", e);
+        }
     }
 }

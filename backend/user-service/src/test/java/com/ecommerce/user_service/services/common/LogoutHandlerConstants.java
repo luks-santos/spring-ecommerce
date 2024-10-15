@@ -6,7 +6,7 @@ import com.ecommerce.user_service.enums.TokenType;
 
 import static com.ecommerce.user_service.services.common.UserConstants.USER;
 
-public class AuthConstants {
+public class LogoutHandlerConstants {
 
     public final static String AUTHORIZATION = "Bearer VALID_TOKEN";
 
@@ -19,19 +19,5 @@ public class AuthConstants {
             .refreshToken(REFRESH_TOKEN)
             .revoked(false)
             .user(USER)
-            .build();
-
-    public final static RefreshToken REFRESH_TOKEN_ENTITY_REVOKED = RefreshToken.builder()
-            .id(2L)
-            .refreshToken(REFRESH_TOKEN)
-            .revoked(true)
-            .user(USER)
-            .build();
-
-    public final static AuthResponseDTO AUTH_RESPONSE_DTO = AuthResponseDTO.builder()
-            .accessToken(ACCESS_TOKEN)
-            .accessTokenExpiry(5 * 60)
-            .tokenType(TokenType.Bearer)
-            .userName("user@example.com")
             .build();
 }

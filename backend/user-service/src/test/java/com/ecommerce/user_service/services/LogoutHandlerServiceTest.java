@@ -14,8 +14,8 @@ import org.springframework.security.core.Authentication;
 
 import java.util.Optional;
 
-import static com.ecommerce.user_service.services.common.AuthConstants.AUTHORIZATION;
-import static com.ecommerce.user_service.services.common.AuthConstants.REFRESH_TOKEN_ENTITY;
+import static com.ecommerce.user_service.services.common.LogoutHandlerConstants.AUTHORIZATION;
+import static com.ecommerce.user_service.services.common.LogoutHandlerConstants.REFRESH_TOKEN_ENTITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;

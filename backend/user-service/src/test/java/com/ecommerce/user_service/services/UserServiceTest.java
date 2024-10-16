@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-import static com.ecommerce.user_service.services.common.UserConstants.*;
+import static com.ecommerce.user_service.common.UserConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

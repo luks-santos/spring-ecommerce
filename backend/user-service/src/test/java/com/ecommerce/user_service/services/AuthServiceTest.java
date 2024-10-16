@@ -14,19 +14,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
-import static com.ecommerce.user_service.services.common.AuthConstants.*;
-import static com.ecommerce.user_service.services.common.UserConstants.USER;
-import static com.ecommerce.user_service.services.common.UserConstants.USER_REGISTRATION_DTO;
+import static com.ecommerce.user_service.common.AuthConstants.*;
+import static com.ecommerce.user_service.common.UserConstants.USER;
+import static com.ecommerce.user_service.common.UserConstants.USER_REGISTRATION_DTO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,14 +88,14 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.getAccessTokenUsingRefreshToken(AUTHORIZATION))
                 .isExactlyInstanceOf(ApiException.class)
-                .hasMessage(HttpStatus.INTERNAL_SERVER_ERROR +  " \"Refresh token revoked.\"");
+                .hasMessage(HttpStatus.INTERNAL_SERVER_ERROR + " \"Refresh token revoked.\"");
     }
 
     @Test
     void getAccessTokenUsingRefreshToken_NoRefreshTokenOrInvalidRefreshToken_ReturnsApiException() {
         assertThatThrownBy(() -> authService.getAccessTokenUsingRefreshToken(null))
                 .isExactlyInstanceOf(ApiException.class)
-                .hasMessage(HttpStatus.INTERNAL_SERVER_ERROR +  " \"Please verify your token type.\"");
+                .hasMessage(HttpStatus.INTERNAL_SERVER_ERROR + " \"Please verify your token type.\"");
     }
 
     @Test
@@ -121,7 +118,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.registerUser(USER_REGISTRATION_DTO, response))
                 .isExactlyInstanceOf(ApiException.class)
-                .hasMessage(HttpStatus.BAD_REQUEST +  " \"User Already Exist.\"");
+                .hasMessage(HttpStatus.BAD_REQUEST + " \"User Already Exist.\"");
 
     }
 }

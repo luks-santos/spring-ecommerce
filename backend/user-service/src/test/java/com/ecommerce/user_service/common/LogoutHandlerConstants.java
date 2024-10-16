@@ -1,10 +1,8 @@
-package com.ecommerce.user_service.services.common;
+package com.ecommerce.user_service.common;
 
-import com.ecommerce.user_service.dtos.AuthResponseDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
-import com.ecommerce.user_service.enums.TokenType;
 
-import static com.ecommerce.user_service.services.common.UserConstants.USER;
+import static com.ecommerce.user_service.common.UserConstants.USER;
 
 public class LogoutHandlerConstants {
 

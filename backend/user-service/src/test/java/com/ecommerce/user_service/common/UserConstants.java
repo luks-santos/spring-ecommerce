@@ -1,4 +1,4 @@
-package com.ecommerce.user_service.services.common;
+package com.ecommerce.user_service.common;
 
 import com.ecommerce.user_service.dtos.UserDTO;
 import com.ecommerce.user_service.dtos.UserRegistrationDTO;

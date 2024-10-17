@@ -1,5 +1,6 @@
 package com.ecommerce.user_service.repositories;
 
+import com.ecommerce.user_service.entities.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -9,7 +10,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Optional;
+
 import static com.ecommerce.user_service.common.UserConstants.USER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = "spring.main.web-application-type=servlet")
 @ImportAutoConfiguration(classes = SecurityAutoConfiguration.class)
@@ -26,8 +30,13 @@ public class UserRepoTest {
 
     @Test
     public void findByEmail_WithValidData_ReturnsUser() {
-        userRepo.save(USER);
+        User user = testEntityManager.persistFlushFind(USER);
 
+        Optional<User> sut = userRepo.findByEmail(user.getEmail());
 
+        assertThat(sut).isPresent();
+        assertThat(sut.get()).isNotNull();
+        assertThat(sut.get().getEmail()).isEqualTo(USER.getEmail());
+        assertThat(sut.get()).isEqualTo(USER);
     }
 }

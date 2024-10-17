@@ -15,14 +15,12 @@ public class AuthConstants {
     public final static String REFRESH_TOKEN = "REFRESH_TOKEN";
 
     public static RefreshToken REFRESH_TOKEN_ENTITY = RefreshToken.builder()
-            .id(1L)
             .refreshToken(REFRESH_TOKEN)
             .revoked(false)
             .user(USER)
             .build();
 
     public final static RefreshToken REFRESH_TOKEN_ENTITY_REVOKED = RefreshToken.builder()
-            .id(2L)
             .refreshToken(REFRESH_TOKEN)
             .revoked(true)
             .user(USER)

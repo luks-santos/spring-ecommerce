@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class UserConstants {
 
     public static final UserDTO USER_DTO = UserDTO.builder()
-            .id(1L)
             .firstName("First Name")
             .lastName("Last Name")
             .email("user@example.com")
@@ -20,7 +19,6 @@ public class UserConstants {
             .build();
 
     public static final UserDTO INVALID_USER_DTO = UserDTO.builder()
-            .id(1L)
             .firstName(" ")
             .lastName(" ")
             .email(" ")
@@ -30,7 +28,6 @@ public class UserConstants {
 
 
     public static final User USER = User.builder()
-            .id(1L)
             .firstName("First Name")
             .lastName("Last Name")
             .email("user@example.com")
@@ -43,7 +40,6 @@ public class UserConstants {
             .build();
 
     public static final User INVALID_USER = User.builder()
-            .id(1L)
             .firstName(" ")
             .lastName(" ")
             .email("user@example.com")

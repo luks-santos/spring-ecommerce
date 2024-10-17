@@ -3,6 +3,7 @@ package com.ecommerce.user_service.entities;
 import com.ecommerce.user_service.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -29,6 +30,7 @@ public class User {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Email
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 

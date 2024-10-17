@@ -13,7 +13,6 @@ public class LogoutHandlerConstants {
     public final static String REFRESH_TOKEN = "REFRESH_TOKEN";
 
     public final static RefreshToken REFRESH_TOKEN_ENTITY = RefreshToken.builder()
-            .id(1L)
             .refreshToken(REFRESH_TOKEN)
             .revoked(false)
             .user(USER)

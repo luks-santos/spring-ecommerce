@@ -132,7 +132,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
 
     @Order(5)
     @Bean
-    public SecurityFilterChain registerSecurityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain registerSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .securityMatcher(new AntPathRequestMatcher("/sign-up/**"))
                 .csrf(AbstractHttpConfigurer::disable)

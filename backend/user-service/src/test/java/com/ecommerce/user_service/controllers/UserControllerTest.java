@@ -55,9 +55,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void update_WithInValidData_ReturnsOkWithUserDTO() throws Exception {
-        when(userService.update(INVALID_USER_DTO)).thenReturn(INVALID_USER_DTO);
-
+    public void update_WithInValidData_ReturnsBadRequest() throws Exception {
         mockMvc.perform(put("/api/account/update_profile")
                         .content(objectMapper.writeValueAsString(INVALID_USER_DTO)).contentType(MediaType.APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))

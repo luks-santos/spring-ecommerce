@@ -21,7 +21,7 @@ public class UserConstants {
     public static final UserDTO INVALID_USER_DTO = UserDTO.builder()
             .firstName(" ")
             .lastName(" ")
-            .email(" ")
+            .email("invalidemail.com")
             .phone(" ")
             .address(" ")
             .build();
@@ -52,6 +52,6 @@ public class UserConstants {
             .build();
 
     public static final UserRegistrationDTO USER_REGISTRATION_DTO = new UserRegistrationDTO(
-            "First Name", "Last Name", "user@example.com", "phone",  "address", "password", UserRole.ROLE_CLIENT
+            "First Name", "Last Name", "user@example.com", "phone", "address", "password", UserRole.ROLE_CLIENT
     );
 }

@@ -26,10 +26,10 @@ public class UserService {
 
         log.info("[UserService:update(id, dto)] Update process started for user with id {}", loggedUserToUpdate.getId());
 
-        loggedUserToUpdate.setFirstName(dto.firstName());
-        loggedUserToUpdate.setLastName(dto.lastName());
-        loggedUserToUpdate.setAddress(dto.address());
-        loggedUserToUpdate.setPhone(dto.phone());
+        loggedUserToUpdate.setFirstName(dto.getFirstName());
+        loggedUserToUpdate.setLastName(dto.getLastName());
+        loggedUserToUpdate.setAddress(dto.getAddress());
+        loggedUserToUpdate.setPhone(dto.getPhone());
 
         return mapper.toDTO(repository.save(loggedUserToUpdate));
     }

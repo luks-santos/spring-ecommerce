@@ -1,5 +1,6 @@
 package com.ecommerce.user_service.controllers;
 
+import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -63,5 +65,19 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.email").value("Invalid email format"))
                 .andExpect(jsonPath("$.phone").value("User phone must not be empty"))
                 .andExpect(jsonPath("$.address").value("User address must not be empty"));
+    }
+
+    @Test
+    void registerUser_WithExistingEmail_ReturnsConflict() throws Exception {
+        when(authService.registerUser(eq(USER_REGISTRATION_DTO), any(HttpServletResponse.class)))
+                .thenThrow(new ApiException(HttpStatus.CONFLICT, "User Already Exist."));
+
+        mockMvc.perform(post("/sign-up")
+                        .content(objectMapper.writeValueAsString(USER_REGISTRATION_DTO))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()))
+                .andDo(print())
+                .andExpect(status().isConflict());
+
     }
 }

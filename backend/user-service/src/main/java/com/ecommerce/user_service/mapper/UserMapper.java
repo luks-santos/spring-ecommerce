@@ -4,6 +4,7 @@ package com.ecommerce.user_service.mapper;
 import com.ecommerce.user_service.dtos.UserDTO;
 import com.ecommerce.user_service.dtos.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.User;
+import com.ecommerce.user_service.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class UserMapper {
                 .password(passwordEncoder.encode(dto.password()))
                 .address(dto.address())
                 .phone(dto.phone())
-                .role(dto.role())
+                .role(UserRole.ROLE_CLIENT)
                 .build();
     }
 

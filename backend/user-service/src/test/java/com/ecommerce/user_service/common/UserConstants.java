@@ -51,7 +51,21 @@ public class UserConstants {
             .refreshTokens(new ArrayList<>())
             .build();
 
-    public static final UserRegistrationDTO USER_REGISTRATION_DTO = new UserRegistrationDTO(
-            "First Name", "Last Name", "user@example.com", "phone", "address", "password", UserRole.ROLE_CLIENT
-    );
+    public static final UserRegistrationDTO USER_REGISTRATION_DTO = UserRegistrationDTO.builder()
+            .firstName("First Name")
+            .lastName("Last Name")
+            .email("user@example.com")
+            .password("password")
+            .address("address")
+            .phone("phone")
+            .build();
+
+    public static final UserRegistrationDTO INVALID_USER_REGISTRATION_DTO = UserRegistrationDTO.builder()
+            .firstName(" ")
+            .lastName(" ")
+            .email("userexample.com")
+            .password(" ")
+            .address(" ")
+            .phone(" ")
+            .build();
 }

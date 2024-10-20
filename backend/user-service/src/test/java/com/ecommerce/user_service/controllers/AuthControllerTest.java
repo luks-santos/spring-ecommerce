@@ -51,13 +51,13 @@ class AuthControllerTest {
     }
 
     @Test
-    void registerUser_WithInValidData_ReturnsBadRequest() throws Exception {
+    void registerUser_WithInvalidData_ReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/sign-up")
                         .content(objectMapper.writeValueAsString(INVALID_USER_REGISTRATION_DTO))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.firstName").value("User first name must not be empty"))
                 .andExpect(jsonPath("$.lastName").value("User last name must not be empty"))
                 .andExpect(jsonPath("$.email").value("Invalid email format"))

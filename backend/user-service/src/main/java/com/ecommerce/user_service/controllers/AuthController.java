@@ -39,7 +39,6 @@ public class AuthController {
                                                         HttpServletResponse httpServletResponse) {
 
         log.info("[AuthController:registerUser]Signup Process Started for user:{}", userRegistrationDto.email());
-        AuthResponseDTO response = service.registerUser(userRegistrationDto, httpServletResponse);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(service.registerUser(userRegistrationDto, httpServletResponse));
     }
 }

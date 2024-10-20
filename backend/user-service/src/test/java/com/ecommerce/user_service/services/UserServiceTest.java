@@ -2,9 +2,9 @@ package com.ecommerce.user_service.services;
 
 import com.ecommerce.user_service.dtos.UserDTO;
 import com.ecommerce.user_service.entities.User;
+import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.UserRepo;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,13 +95,13 @@ class UserServiceTest {
     }
 
     @Test
-    void getLoggedUserDTO_WithInvalidData_ReturnsEntityNotFoundException() {
+    void getLoggedUserDTO_WithInvalidData_ReturnsException() {
         // Mock repository
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Validate the result
         assertThatThrownBy(() -> service.getLoggedUserDTO())
-                .isExactlyInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Authenticated user not found.");
+                .isExactlyInstanceOf(ApiException.class)
+                .hasMessage("404 NOT_FOUND \"Authenticated user not found.\"");
     }
 }

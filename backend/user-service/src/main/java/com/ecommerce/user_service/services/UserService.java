@@ -2,12 +2,13 @@ package com.ecommerce.user_service.services;
 
 import com.ecommerce.user_service.dtos.UserDTO;
 import com.ecommerce.user_service.entities.User;
+import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.UserRepo;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class UserService {
         return repository.findByEmail(authentication.getName())
                 .orElseThrow(() -> {
                     log.error("[UserService:getLoggedUser]Logged in user with email {} not found", authentication.getName());
-                    return new EntityNotFoundException("Authenticated user not found.");
+                    return new ApiException(HttpStatus.NOT_FOUND, "Authenticated user not found.");
                 });
     }
 

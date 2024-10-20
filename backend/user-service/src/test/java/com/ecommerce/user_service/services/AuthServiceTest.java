@@ -118,7 +118,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.registerUser(USER_REGISTRATION_DTO, response))
                 .isExactlyInstanceOf(ApiException.class)
-                .hasMessage(HttpStatus.BAD_REQUEST + " \"User Already Exist.\"");
+                .hasMessage(HttpStatus.CONFLICT + " \"User Already Exist.\"");
 
     }
 }

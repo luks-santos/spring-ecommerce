@@ -1,6 +1,7 @@
 package com.ecommerce.user_service.repositories;
 
 import com.ecommerce.user_service.entities.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -29,10 +30,14 @@ public class UserRepoTest {
     @Autowired
     private TestEntityManager testEntityManager;
 
+    @AfterEach
+    public void afterEach() {
+        USER.setId(null);
+    }
 
     @Test
     public void save_WithExistingEmail_ThrowsException() {
-        User user = testEntityManager.persistFlushFind(USER_TO_REPO);
+        User user = testEntityManager.persistFlushFind(USER);
         testEntityManager.detach(user);
         user.setId(null);
 
@@ -40,14 +45,21 @@ public class UserRepoTest {
     }
 
     @Test
-    public void findByEmail_WithValidData_ReturnsUser() {
-        User user = testEntityManager.persistFlushFind(USER_TO_REPO_2);
+    public void findByEmail_WithExistingEmail_ReturnsUser() {
+        User user = testEntityManager.persistFlushFind(USER);
 
         Optional<User> sut = userRepo.findByEmail(user.getEmail());
 
         assertThat(sut).isPresent();
         assertThat(sut.get()).isNotNull();
-        assertThat(sut.get().getEmail()).isEqualTo(USER_TO_REPO_2.getEmail());
-        assertThat(sut.get()).isEqualTo(USER_TO_REPO_2);
+        assertThat(sut.get().getEmail()).isEqualTo(USER.getEmail());
+        assertThat(sut.get()).isEqualTo(USER);
+    }
+
+    @Test
+    public void findByEmail_WithUnexistingEmail_ReturnsEmpty() {
+        Optional<User> sut = userRepo.findByEmail("email@unexisting.com");
+
+        assertThat(sut).isEmpty();
     }
 }

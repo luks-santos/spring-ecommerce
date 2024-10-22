@@ -38,30 +38,6 @@ public class UserConstants {
             .refreshTokens(new ArrayList<>())
             .build();
 
-    public static final User USER_TO_REPO = User.builder()
-            .firstName("First Name")
-            .lastName("Last Name")
-            .email("user@example.com")
-            .password("password")
-            .address("address")
-            .phone("phone2")
-            .role(UserRole.ROLE_CLIENT)
-            .createdAt(LocalDateTime.now())
-            .refreshTokens(new ArrayList<>())
-            .build();
-
-    public static final User USER_TO_REPO_2 = User.builder()
-            .firstName("First Name 2")
-            .lastName("Last Name 2")
-            .email("user@example2.com")
-            .password("password2")
-            .address("address2")
-            .phone("phone2")
-            .role(UserRole.ROLE_CLIENT)
-            .createdAt(LocalDateTime.now())
-            .refreshTokens(new ArrayList<>())
-            .build();
-
     public static final User INVALID_USER = User.builder()
             .firstName(" ")
             .lastName(" ")

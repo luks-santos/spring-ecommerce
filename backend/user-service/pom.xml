@@ -95,6 +95,56 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							com/ecommerce/user_service/UserServiceApplication.class
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/exceptions/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/config/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/config/jwt/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/config/user/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/entities/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/controllers/advices/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/enums/*
+						</exclude>
+						<exclude>
+							com/ecommerce/user_service/dtos/*
+						</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
@@ -135,6 +185,27 @@
 							-Amapstruct.defaultComponentModel=spring
 						</compilerArg>
 					</compilerArgs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.pitest</groupId>
+				<artifactId>pitest-maven</artifactId>
+				<version>1.17.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.pitest</groupId>
+						<artifactId>pitest-junit5-plugin</artifactId>
+						<version>1.2.1</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<targetTests>
+						<param>com.ecommerce.user_service.*Test</param>
+					</targetTests>
+					<excludedClasses>
+						<param>com/ecommerce/user_service/entities/RefreshToken</param>
+						<param>com/ecommerce/user_service/entities/User</param>
+					</excludedClasses>
 				</configuration>
 			</plugin>
 		</plugins>

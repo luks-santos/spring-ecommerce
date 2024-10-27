@@ -33,6 +33,7 @@ public class UserRepoTest {
     @AfterEach
     public void afterEach() {
         USER.setId(null);
+        USER.setCreatedAt(null);
     }
 
     @Test

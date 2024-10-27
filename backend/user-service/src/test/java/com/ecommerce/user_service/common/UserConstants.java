@@ -34,7 +34,6 @@ public class UserConstants {
             .address("address")
             .phone("phone")
             .role(UserRole.ROLE_CLIENT)
-            .createdAt(LocalDateTime.now())
             .refreshTokens(new ArrayList<>())
             .build();
 
@@ -46,7 +45,6 @@ public class UserConstants {
             .address(" ")
             .phone(" ")
             .role(UserRole.ROLE_CLIENT)
-            .createdAt(LocalDateTime.now())
             .refreshTokens(new ArrayList<>())
             .build();
 

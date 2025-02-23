@@ -15,9 +15,3 @@ O objetivo do projeto é criar uma plataforma de e-commerce capaz de lidar com o
 - **Order Service**: Processa e gerencia os pedidos dos usuários.
 - **Payment Service**: Processa os pagamentos, integrando com gateways de pagamento como Stripe ou PayPal.
 - **Notification Service**: Envia notificações por e-mail ou SMS para eventos como confirmação de pedido e atualizações de envio.
-
-### Componentes Adicionais:
-- **API Gateway**: Roteia as requisições dos clientes para os microserviços apropriados.
-- **Service Discovery**: Detecta automaticamente as instâncias de serviço e gerencia a comunicação entre eles.
-- **Centralized Logging**: Agrega logs de todos os microserviços para facilitar o monitoramento e a depuração.
-- **CI/CD Pipeline**: Automatiza a construção, testes e implantação de cada microserviço.

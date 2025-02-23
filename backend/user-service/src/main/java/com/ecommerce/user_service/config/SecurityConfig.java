@@ -154,6 +154,19 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                 .build();
     }
 
+    @Order(7)
+    @Bean
+    SecurityFilterChain swaggerSecurityFilterChainConfig(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .securityMatcher(new AntPathRequestMatcher("/swagger-ui/**"))
+                .securityMatcher(new AntPathRequestMatcher("/v3/api-docs/**"))
+                .securityMatcher(new AntPathRequestMatcher("/swagger-ui.html"))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
+                .build();
+    }
+
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

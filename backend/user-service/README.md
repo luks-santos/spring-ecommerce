@@ -10,7 +10,7 @@ O serviço de usuários é um microserviço responsável por gerenciar operaçõ
 
 ## Stack
 - Java 23
-- Spring Boot 3.3.3
+- Spring Boot 3.3.9
 - Maven
 - MySQL 8.0
 

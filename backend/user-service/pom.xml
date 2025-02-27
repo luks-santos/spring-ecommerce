@@ -26,8 +26,26 @@
         <tag/>
         <url/>
     </scm>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <active.profile>dev</active.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <active.profile>prod</active.profile>
+            </properties>
+        </profile>
+    </profiles>
     <properties>
         <java.version>23</java.version>
+        <spring-cloud.version>2023.0.5</spring-cloud.version>
     </properties>
     <dependencies>
         <dependency>
@@ -37,6 +55,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -96,7 +118,17 @@
             <version>2.6.0</version>
         </dependency>
     </dependencies>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <!-- Plugin para gerar relatórios de cobertura de testes com Jacoco, excluindo classes específicas -->
@@ -198,5 +230,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -1,43 +1,46 @@
 # User Service
+The User Service is a microservice responsible for managing user-related operations in the Scalable E-Commerce Platform. 
+It handles user registration, authentication, profile management, and other essential user functions.
 
-O serviço de usuários é um microserviço responsável por gerenciar operações relacionadas a usuários na Plataforma E-Commerce Escalável. Ele trata do cadastro, autenticação, gerenciamento de perfis e outras funções essenciais de usuários.
+## Key Features
+- User registration and profile creation 
+- User authentication and authorization
 
-## Funcionalidades Principais
+## API Documentation
+The API documentation is available at [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) after starting the service. 
+It contains details about endpoints, parameters, responses, and usage examples.
 
-- Cadastro e criação de perfis de usuários  
-- Autenticação e autorização de usuários
-- Persistência de dados utilizando SQL
-
-## Stack
-- Java 23
+## Tech Stack
+- Java 23 with Maven
 - Spring Boot 3.3.9
-- Maven
+- Spring Security with JWT
 - MySQL 8.0
 
-
-## Estrutura do Projeto
-
-O serviço possui uma estrutura modular que facilita o desenvolvimento, teste e implantação. Diretórios principais:
-
-- `/src/main/java`: Código-fonte principal da aplicação  
-- `/src/main/resources`: Arquivos de configuração e recursos  
-- `/src/test`: Testes unitários e de integração
-
-## Executando o Serviço Localmente
-
-1. Certifique-se de ter o Java e o Maven instalados.  
-2. Navegue até o diretório `/user-service`.  
-3. Construa o projeto com Maven:
+## Running the Service Locally
+1. Ensure Java 23 and Maven are installed. 
+2. Navigate to the `/user-service` directory.  
+3. Build the project with Maven:
    ```sh
     mvn clean package
    ```
-   
-4. Execute o serviço com Spring Boot:
+4. Run the service with Spring Boot:
    ```sh
     mvn spring-boot:run
    ```
-O serviço iniciará na porta padrão (por exemplo, `8080`), que pode ser configurada no arquivo `application.properties`.
+   
+## Running Tests
+1. To run the unit and integration tests, use the following command:
+   ```sh
+     mvn test 
+   ```
 
-## Documentação da API
-
-A documentação da API está disponível em `http://localhost:8080/swagger-ui.html` após a inicialização do serviço. Ela contém detalhes sobre os endpoints, parâmetros, respostas e exemplos de uso.
+## Running with Docker
+To run the service using Docker, follow these steps:
+1. Build the Docker image:
+   ```sh
+    docker build -t user-service .
+   ```
+2. Run the Docker container:
+   ```sh
+    docker run -p 8080:8080 --name user-service-container user-service
+   ```

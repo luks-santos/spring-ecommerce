@@ -22,7 +22,7 @@ RUN ./mvnw dependency:go-offline
 COPY ./src /root/src
 
 # Compila e empacota o projeto
-RUN ./mvnw clean install -DskipTests
+RUN ./mvnw clean install -DskipTests -Pprod
 
 # Comando para iniciar a aplicação
 ENTRYPOINT ["java","-jar","/root/target/user-service-0.0.1-SNAPSHOT.jar"]

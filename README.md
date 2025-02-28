@@ -1,8 +1,7 @@
 # Scalable E-Commerce Platform
 
-Este é um projeto de e-commerce escalável, baseado em uma arquitetura de microserviços, com o objetivo de criar uma plataforma robusta, eficiente e de fácil manutenção para gerenciar uma loja online. 
-A solução é construída utilizando Java, Spring Boot e Docker, aproveitando microserviços para garantir escalabilidade, flexibilidade e alta disponibilidade. 
+This is a scalable e-commerce platform project based on a microservices architecture, designed to create a robust, efficient, and maintainable solution for managing an online store.
 
-A arquitetura modular permite que cada serviço seja desenvolvido, implantado e escalado independentemente, oferecendo uma solução otimizada para atender a uma base de clientes crescente.
+The system is built using Java, Spring Boot, and Docker, following a microservices architecture that allows each service to be developed, deployed, and scaled independently.
 
-O projeto segue o roadmap sugerido em [Roadmap para Plataforma de E-commerce Escalável](https://roadmap.sh/projects/scalable-ecommerce-platform), que descreve as melhores práticas e passos necessários para a criação de uma plataforma de e-commerce utilizando microserviços.
+The project follows the roadmap outlined in [Scalable E-Commerce Platform](https://roadmap.sh/projects/scalable-ecommerce-platform), which provides best practices and key steps for building an e-commerce platform using microservices.

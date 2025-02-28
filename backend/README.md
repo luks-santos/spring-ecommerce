@@ -1,23 +1,20 @@
 ## Backend - Scalable E-Commerce Platform
 
-O backend é responsável por gerenciar a lógica central do e-commerce, oferecendo os serviços de API para comunicação entre os microserviços e clientes. Ele é implementado utilizando Java e Spring Boot. 
-Spring Boot permite a criação rápida e eficiente de microserviços, integrando de forma fluida com outras tecnologias e oferecendo ferramentas robustas para autenticação, segurança, 
-gerenciamento de banco de dados e muito mais.
+The backend is responsible for managing the core logic of the e-commerce platform, providing API services for communication between microservices and clients. It is implemented using Java and Spring Boot.
 
+## Main Microservices
+- **User Service**: Manages user registration, authentication, and profiles.  
+~~- **Product Catalog Service**: Manages the product catalog, categories, and inventory.~~  
+~~- **Shopping Cart Service**: Manages users' shopping carts.~~  
+~~- **Order Service**: Processes and manages user orders.~~  
+~~- **Payment Service**: Handles payments, integrating with payment gateways such as Stripe or PayPal.~~  
+~~- **Notification Service**: Sends email or SMS notifications for events like order confirmation and shipping updates.~~  
 
-### Principais Microserviços:
-- **User Service**: Gerencia o cadastro, autenticação e perfil dos usuários.
-~~- **Product Catalog Service**: Gerencia o catálogo de produtos, categorias e inventário.~~
-~~- **Shopping Cart Service**: Gerencia os carrinhos de compras dos usuários.~~
-~~- **Order Service**: Processa e gerencia os pedidos dos usuários.~~
-~~- **Payment Service**: Processa os pagamentos, integrando com gateways de pagamento como Stripe ou PayPal.~~
-~~- **Notification Service**: Envia notificações por e-mail ou SMS para eventos como confirmação de pedido e atualizações de envio.~~
+## Additional Components
+- **Service Discovery (Eureka)**: Automatically detects service instances and manages communication between them.  
+- **Docker**: Uses Docker containers to isolate, package, and deploy each microservice, providing a scalable and portable solution. 
+- **CI Pipeline**: Automates testing of each microservice. 
+~~- **API Gateway**: Routes client requests to the appropriate microservices.~~  
+~~- **Centralized Logging**: Aggregates logs from all microservices to facilitate monitoring and debugging.~~  
 
-
-### Componentes Adicionais:
-~~- **API Gateway**: Roteia as requisições dos clientes para os microserviços apropriados.~~
-~~- **Service Discovery**: Detecta automaticamente as instâncias de serviço e gerencia a comunicação entre eles.~~
-~~- **Docker**: Utiliza containers Docker para isolar, empacotar e implantar cada microserviço, proporcionando uma solução escalável e portável. O Docker também é usado em conjunto com Docker Compose para gerenciar e orquestrar múltiplos containers.~~
-~~- **Centralized Logging**: Agrega logs de todos os microserviços para facilitar o monitoramento e a depuração.~~
-~~- **CI/CD Pipeline**: Automatiza a construção, testes e implantação de cada microserviço.~~
 

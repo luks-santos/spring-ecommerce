@@ -1,6 +1,6 @@
 package com.ecommerce.user_service.common;
 
-import com.ecommerce.user_service.dtos.AuthResponseDTO;
+import com.ecommerce.user_service.dto.AuthResponseDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
 import com.ecommerce.user_service.enums.TokenType;
 

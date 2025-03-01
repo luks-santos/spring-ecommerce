@@ -1,6 +1,6 @@
 package com.ecommerce.user_service.services;
 
-import com.ecommerce.user_service.dtos.UserDTO;
+import com.ecommerce.user_service.dto.UserDTO;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;

@@ -1,12 +1,8 @@
-package com.ecommerce.user_service.dtos;
+package com.ecommerce.user_service.dto;
 
-import com.ecommerce.user_service.enums.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 
 @Builder
 public record UserRegistrationDTO(

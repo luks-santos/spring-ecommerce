@@ -1,4 +1,4 @@
-package com.ecommerce.user_service.dtos;
+package com.ecommerce.user_service.dto;
 
 import com.ecommerce.user_service.enums.TokenType;
 import com.fasterxml.jackson.annotation.JsonProperty;

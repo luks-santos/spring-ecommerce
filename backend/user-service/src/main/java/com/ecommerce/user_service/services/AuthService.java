@@ -1,8 +1,8 @@
 package com.ecommerce.user_service.services;
 
 import com.ecommerce.user_service.config.jwt.JwtTokenGenerator;
-import com.ecommerce.user_service.dtos.AuthResponseDTO;
-import com.ecommerce.user_service.dtos.UserRegistrationDTO;
+import com.ecommerce.user_service.dto.AuthResponseDTO;
+import com.ecommerce.user_service.dto.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.TokenType;
@@ -58,8 +58,7 @@ public class AuthService {
         } catch (ApiException e) {
             log.error("[AuthService:userSignInAuth]Exception while authenticating the user due to :{}", e.getMessage());
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("[AuthService:userSignInAuth] Unexpected exception while sign-in in the user: {}", e.getMessage());
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred during user sign-in", e);
         }
@@ -113,8 +112,7 @@ public class AuthService {
         } catch (ApiException e) {
             log.error("[AuthService:getAccessTokenUsingRefreshToken]Exception while getting access token using refresh token: {}", e.getMessage());
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("[AuthService:getAccessTokenUsingRefreshToken]Unexpected exception while getting access token using refresh token: {}", e.getMessage());
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error while getting access token using refresh token", e);
         }
@@ -169,8 +167,7 @@ public class AuthService {
         } catch (ApiException e) {
             log.error("[AuthService:registerUser]Exception while registering the user due to : {}", e.getMessage());
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("[AuthService:registerUser]Unexpected exception while registering the user: {}", e.getMessage());
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred during user registration", e);
         }

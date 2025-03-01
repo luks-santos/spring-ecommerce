@@ -1,8 +1,8 @@
 package com.ecommerce.user_service.mapper;
 
 
-import com.ecommerce.user_service.dtos.UserDTO;
-import com.ecommerce.user_service.dtos.UserRegistrationDTO;
+import com.ecommerce.user_service.dto.UserDTO;
+import com.ecommerce.user_service.dto.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.UserRole;
 import lombok.RequiredArgsConstructor;

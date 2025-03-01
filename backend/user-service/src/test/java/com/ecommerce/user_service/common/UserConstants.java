@@ -1,11 +1,10 @@
 package com.ecommerce.user_service.common;
 
-import com.ecommerce.user_service.dtos.UserDTO;
-import com.ecommerce.user_service.dtos.UserRegistrationDTO;
+import com.ecommerce.user_service.dto.UserDTO;
+import com.ecommerce.user_service.dto.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.UserRole;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class UserConstants {

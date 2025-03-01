@@ -1,7 +1,7 @@
 package com.ecommerce.user_service.controllers;
 
-import com.ecommerce.user_service.dtos.AuthResponseDTO;
-import com.ecommerce.user_service.dtos.UserRegistrationDTO;
+import com.ecommerce.user_service.dto.AuthResponseDTO;
+import com.ecommerce.user_service.dto.UserRegistrationDTO;
 import com.ecommerce.user_service.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,13 +23,12 @@ public class AuthController {
     private final AuthService service;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<?> authenticateUser(Authentication authentication, HttpServletResponse response) {
+    public ResponseEntity<AuthResponseDTO> authenticateUser(Authentication authentication, HttpServletResponse response) {
         return ResponseEntity.ok(service.getJwtTokensAfterAuthentication(authentication, response));
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_REFRESH_TOKEN')")
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> getAccessToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<AuthResponseDTO> getAccessToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         return ResponseEntity.ok(service.getAccessTokenUsingRefreshToken(authorizationHeader));
     }
 

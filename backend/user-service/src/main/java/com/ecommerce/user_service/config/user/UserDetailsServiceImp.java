@@ -13,12 +13,11 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     private final UserRepo repository;
 
-
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return repository
-                .findByEmail(email)
+                .findByEmail(username)
                 .map(UserDetailsImp::new)
-                .orElseThrow(() -> new UsernameNotFoundException("UserEmail: " + email + " does not exist"));
+                .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " does not exist"));
     }
 }

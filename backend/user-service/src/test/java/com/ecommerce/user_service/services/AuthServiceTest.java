@@ -1,7 +1,7 @@
 package com.ecommerce.user_service.services;
 
 import com.ecommerce.user_service.config.jwt.JwtTokenGenerator;
-import com.ecommerce.user_service.dtos.AuthResponseDTO;
+import com.ecommerce.user_service.dto.AuthResponseDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
 import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;

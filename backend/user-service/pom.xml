@@ -265,7 +265,7 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>@{argLine}
-                        -javaagent:${settings.localRepository}\org\mockito\mockito-core\${mockito.version}\mockito-core-${mockito.version}.jar
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
                     </argLine>
                 </configuration>
             </plugin>

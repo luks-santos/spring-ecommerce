@@ -3,6 +3,7 @@ package com.ecommerce.user_service.controllers;
 import com.ecommerce.user_service.dto.AuthResponseDTO;
 import com.ecommerce.user_service.dto.UserRegistrationDTO;
 import com.ecommerce.user_service.services.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class AuthController {
         return ResponseEntity.ok(service.getJwtTokensAfterAuthentication(authentication, response));
     }
 
+    @Operation(summary = "Get a new access token", description = "Use the refresh token, this token is found in a cookie named 'refresh_token'")
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthResponseDTO> getAccessToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         return ResponseEntity.ok(service.getAccessTokenUsingRefreshToken(authorizationHeader));

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @Builder
@@ -22,4 +24,16 @@ public class AuthResponseDTO {
 
     @JsonProperty("user_name")
     private String userName;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        AuthResponseDTO that = (AuthResponseDTO) o;
+        return accessTokenExpiry == that.accessTokenExpiry && Objects.equals(accessToken, that.accessToken) && tokenType == that.tokenType && Objects.equals(userName, that.userName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accessToken, accessTokenExpiry, tokenType, userName);
+    }
 }

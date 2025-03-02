@@ -1,4 +1,3 @@
-# Configuração do banco H2
 spring:
   datasource:
     url: jdbc:h2:mem:e-commerce-test

@@ -15,21 +15,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_DATABASE: e-commerce-test
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root --password=root"
-          --health-interval=20s
-          --health-timeout=5s
-          --health-retries=3
-
+  
     steps:
       - name: Checkout código
         uses: actions/checkout@v4  
@@ -40,9 +26,6 @@ jobs:
           distribution: 'zulu'
           java-version: '23'
           cache: 'maven'
-
-      - name: Aguardar MySQL subir
-        run: sleep 20
 
       - name: Instalar dependências
         run: mvn clean install -DskipTests

@@ -19,5 +19,5 @@ public record UserRegistrationDTO(
         String address,
         @NotBlank(message = "User password must not be empty")
         String password
-        ) {
+) {
 }

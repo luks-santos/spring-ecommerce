@@ -29,10 +29,25 @@ It contains details about endpoints, parameters, responses, and usage examples.
    ```
    
 ## Running Tests
-1. To run the unit and integration tests, use the following command:
-   ```sh
-     mvn test 
+In `maven-surefire-plugin`, there is a configuration `argLine` that must be changed based on your operating system.
+
+For Windows:
+   ```xml
+   <argLine>@{argLine}
+            -javaagent:${settings.localRepository}\org\mockito\mockito-core\${mockito.version}\mockito-core-${mockito.version}.jar
+   </argLine>
    ```
+For Unix-based systems:
+   ```xml
+   <argLine>@{argLine}
+      -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+   </argLine>
+   ```
+
+1. To run the unit and integration tests, use the following command:
+```sh
+  mvn test 
+```
 
 ## Running with Docker
 To run the service using Docker, follow these steps:

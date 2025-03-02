@@ -1,0 +1,19 @@
+# Configuração do banco H2
+spring:
+  datasource:
+    url: jdbc:h2:mem:e-commerce-test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+  flyway:
+    enabled: false
+
+jwt:
+  rsa-private-key: classpath:certs/privateKey.pem
+  rsa-public-key: classpath:certs/publicKey.pem

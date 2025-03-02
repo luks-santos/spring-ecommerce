@@ -23,6 +23,7 @@ public class AuthController {
 
     private final AuthService service;
 
+    @Operation(summary = "Authenticate a user", description = "First, log in with your credentials by clicking on \uD83D\uDD12 Authorize in Swagger. Then, use the endpoint to authenticate the user.")
     @PostMapping("/sign-in")
     public ResponseEntity<AuthResponseDTO> authenticateUser(Authentication authentication, HttpServletResponse response) {
         return ResponseEntity.ok(service.getJwtTokensAfterAuthentication(authentication, response));

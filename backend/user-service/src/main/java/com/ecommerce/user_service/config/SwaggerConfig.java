@@ -17,9 +17,11 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info().title("User Service API").version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-key"))
+                .addSecurityItem(new SecurityRequirement().addList("basic-auth"))
                 .components(new Components()
                         .addSecuritySchemes("bearer-key", new SecurityScheme()
-                                .name("bearer-key").type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
-
+                                .name("bearer-key").type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
+                        .addSecuritySchemes("basic-auth", new SecurityScheme()
+                                .name("basic-auth").type(SecurityScheme.Type.HTTP).scheme("basic")));
     }
 }

@@ -28,7 +28,7 @@ jobs:
           cache: 'maven'
 
       - name: Instalar dependências
-        run: mvn clean install -DskipTests
+        run: mvn clean install -Pprod -DskipTests
         working-directory: backend/user-service 
 
       - name: Executar testes unitários

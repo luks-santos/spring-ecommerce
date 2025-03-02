@@ -38,14 +38,27 @@
             </activation>
             <properties>
                 <active.profile>dev</active.profile>
-                <mockito.agent.path>${settings.localRepository}\org\mockito\mockito-core\${mockito.version}\mockito-core-${mockito.version}.jar</mockito.agent.path>
+                <mockito.agent.path>
+                    ${settings.localRepository}\org\mockito\mockito-core\${mockito.version}\mockito-core-${mockito.version}.jar
+                </mockito.agent.path>
             </properties>
         </profile>
         <profile>
             <id>prod</id>
             <properties>
                 <active.profile>prod</active.profile>
-                <mockito.agent.path>${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</mockito.agent.path>
+                <mockito.agent.path>
+                    ${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                </mockito.agent.path>
+            </properties>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <active.profile>test</active.profile>
+                <mockito.agent.path>
+                    ${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                </mockito.agent.path>
             </properties>
         </profile>
     </profiles>

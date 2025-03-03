@@ -7,19 +7,18 @@ It handles user registration, authentication, profile management, and other esse
 - User authentication and authorization
 
 ## API Documentation
-The API documentation is available at [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) after starting the service. 
+The API documentation is available at http://localhost:8080/swagger-ui.html after starting the service. 
 It contains details about endpoints, parameters, responses, and usage examples.
 
 ## Tech Stack
 - Java 23 with Maven
-- Spring Boot 3.3.9
+- Spring Boot 3.x.x
 - Spring Security with JWT
 - MySQL 8.0
 
 ## Running the Service Locally
-1. Ensure Java 23 and Maven are installed. 
-2. Navigate to the `/user-service` directory.  
-3. Build the project with Maven:
+1. Ensure Java 23 and Maven are installed.
+2. Build the project with Maven:
    ```sh
     mvn clean package
    ```

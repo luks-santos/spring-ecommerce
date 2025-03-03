@@ -45,6 +45,8 @@ class UserServiceTest {
 
     @BeforeEach
     public void setup() {
+        USER.setId(null);
+        USER.setCreatedAt(null);
         stubAuthentication();
     }
 

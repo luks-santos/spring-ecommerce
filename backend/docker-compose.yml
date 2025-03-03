@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    networks:
+      - microservices-net
+
+  eureka-service:
+    build:
+      context: ./eureka-service
+    container_name: eureka-service
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-net
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-net
+    environment:
+      DATABASE_URL: jdbc:mysql://mysql-db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_DRIVER: com.mysql.cj.jdbc.Driver
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql
+      - eureka-service
+
+networks:
+  microservices-net:
+    driver: bridge

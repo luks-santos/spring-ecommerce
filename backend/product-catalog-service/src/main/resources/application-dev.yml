@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: product-catalog-service
+
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/e-commerce-product
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: mysql
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org.springframework.security: trace
+

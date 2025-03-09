@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS inventories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    quantity INT NOT NULL,
+    product_id BIGINT UNIQUE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);

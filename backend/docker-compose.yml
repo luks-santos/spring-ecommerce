@@ -1,17 +1,17 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-db
+  mysql-user:
+    image: mysql:8.0-debian
+    container_name: mysql-db-user
     restart: always
     env_file:
       - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_USER}
     ports:
       - "3307:3306"
     networks:
@@ -39,12 +39,12 @@ services:
     networks:
       - microservices-net
     environment:
-      DATABASE_URL: jdbc:mysql://mysql-db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DATABASE_URL: jdbc:mysql://mysql-db-user:3306/${MYSQL_DATABASE_USER}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_DRIVER: com.mysql.cj.jdbc.Driver
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
-      - mysql
+      - mysql-user
       - eureka-service
 
 networks:

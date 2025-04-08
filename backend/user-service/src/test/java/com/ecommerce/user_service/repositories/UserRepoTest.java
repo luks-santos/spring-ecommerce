@@ -14,9 +14,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
-import static com.ecommerce.user_service.common.UserConstants.*;
+import static com.ecommerce.user_service.common.UserConstants.USER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest(properties = "spring.main.web-application-type=servlet")
 @ImportAutoConfiguration(classes = SecurityAutoConfiguration.class)
@@ -42,7 +42,9 @@ public class UserRepoTest {
         testEntityManager.detach(user);
         user.setId(null);
 
-        assertThatThrownBy(() -> userRepo.save(user)).isExactlyInstanceOf(DataIntegrityViolationException.class);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            userRepo.saveAndFlush(user);
+        });
     }
 
     @Test

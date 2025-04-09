@@ -3,6 +3,7 @@ package com.ecommerce.product_catalog_service.controllers;
 import com.ecommerce.product_catalog_service.dto.ProductCreateDTO;
 import com.ecommerce.product_catalog_service.entities.Product;
 import com.ecommerce.product_catalog_service.services.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,12 +38,12 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product create(@RequestBody ProductCreateDTO dto) {
+    public Product create(@Valid @RequestBody ProductCreateDTO dto) {
         return service.create(dto);
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable UUID id, @RequestBody ProductCreateDTO dto) {
+    public Product update(@PathVariable UUID id, @Valid @RequestBody ProductCreateDTO dto) {
         return service.update(id, dto);
     }
 

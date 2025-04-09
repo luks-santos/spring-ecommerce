@@ -3,6 +3,8 @@ package com.ecommerce.product_catalog_service.controllers;
 import com.ecommerce.product_catalog_service.dto.InventoryCreateDTO;
 import com.ecommerce.product_catalog_service.entities.Inventory;
 import com.ecommerce.product_catalog_service.services.InventoryService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,22 +40,26 @@ public class InventoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Inventory create(@RequestBody InventoryCreateDTO dto) {
+    public Inventory create(@Valid @RequestBody InventoryCreateDTO dto) {
         return service.create(dto);
     }
 
     @PutMapping("/{productId}")
-    public Inventory update(@PathVariable UUID productId, @RequestBody InventoryCreateDTO dto) {
+    public Inventory update(@PathVariable UUID productId, @Valid @RequestBody InventoryCreateDTO dto) {
         return service.update(productId, dto);
     }
 
     @PatchMapping("/{productId}/add")
-    public Inventory addQuantity(@PathVariable UUID productId, @RequestParam int qty) {
+    public Inventory addQuantity(
+            @PathVariable UUID productId,
+            @RequestParam @Positive(message = "A quantidade deve ser maior que zero") int qty) {
         return service.addQuantity(productId, qty);
     }
 
     @PatchMapping("/{productId}/remove")
-    public Inventory removeQuantity(@PathVariable UUID productId, @RequestParam int qty) {
+    public Inventory removeQuantity(
+            @PathVariable UUID productId,
+            @RequestParam @Positive(message = "A quantidade deve ser maior que zero") int qty) {
         return service.removeQuantity(productId, qty);
     }
 }

@@ -1,6 +1,7 @@
 package com.ecommerce.product_catalog_service.services;
 
 import com.ecommerce.product_catalog_service.entities.Category;
+import com.ecommerce.product_catalog_service.exceptions.ResourceNotFoundException;
 import com.ecommerce.product_catalog_service.repositories.CategoryRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class CategoryService {
 
     public Category findById(UUID id) {
         return repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com id: " + id));
     }
 
     public Category create(Category category) {

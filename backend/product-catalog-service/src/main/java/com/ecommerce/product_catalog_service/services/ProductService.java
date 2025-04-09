@@ -48,7 +48,7 @@ public class ProductService {
     }
 
     public Product update(UUID id, ProductCreateDTO dto) {
-        if (dto.price().compareTo(BigDecimal.ZERO) > 0) {
+        if (dto.price().compareTo(BigDecimal.ZERO) < 0) {
             throw new BadRequestException("O preço do produto deve ser maior que zero");
         }
 

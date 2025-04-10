@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-      - -develop
+      - develop
     paths:
-      - 'backend/user-service/**' 
+      - 'backend/product-catalog-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/user-service/**'
+      - 'backend/product-catalog-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependências
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/user-service 
+        working-directory: backend/product-catalog-service
 
       - name: Executar testes unitários
         run: mvn test
-        working-directory: backend/user-service  
+        working-directory: backend/product-catalog-service

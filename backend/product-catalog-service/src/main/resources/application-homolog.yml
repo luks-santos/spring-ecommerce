@@ -16,7 +16,7 @@ spring:
       ddl-auto: update
 
 server:
-  port: 8081
+  port: 8082
 
 eureka:
   client:
@@ -24,7 +24,6 @@ eureka:
       defaultZone: http://eureka-service:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
-
   instance:
     prefer-ip-address: true
 

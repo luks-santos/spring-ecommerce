@@ -3,7 +3,6 @@ package com.ecommerce.product_catalog_service.exceptions;
 import com.ecommerce.product_catalog_service.dto.ApiErrorDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;

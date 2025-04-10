@@ -10,6 +10,7 @@ import com.ecommerce.product_catalog_service.exceptions.InsufficientInventoryExc
 import com.ecommerce.product_catalog_service.exceptions.ResourceNotFoundException;
 import com.ecommerce.product_catalog_service.repositories.InventoryRepo;
 import com.ecommerce.product_catalog_service.repositories.ProductRepo;
+import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,6 +103,7 @@ class InventoryServiceTest {
 
     @Test
     void shouldThrowExceptionWhenCreatingInventoryWithNegativeQuantity() {
+        @SuppressWarnings("unchecked")
         InventoryCreateDTO invalidDTO = new InventoryCreateDTO(
                 ProductTestConstants.PRODUCT_ID,
                 -5  // quantidade negativa

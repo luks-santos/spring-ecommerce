@@ -1,0 +1,37 @@
+name: User Service CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/product-catalog-service/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/product-catalog-service/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4  
+
+      - name: Configurar JDK 23
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '23'
+          cache: 'maven'
+
+      - name: Instalar dependências
+        run: mvn clean install -Ptest -DskipTests
+        working-directory: backend/product-catalog-service
+
+      - name: Executar testes unitários
+        run: mvn test
+        working-directory: backend/product-catalog-service

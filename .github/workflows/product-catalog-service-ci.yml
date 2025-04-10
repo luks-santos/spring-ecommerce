@@ -1,4 +1,4 @@
-name: User Service CI
+name: Product Catalog CI
 
 on:
   push:

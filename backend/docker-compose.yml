@@ -1,9 +1,11 @@
 version: '3.8'
 
 services:
-  mysql-user:
+  mysql-ecommerce:
+    volumes:
+      - ./init-mysql/:/docker-entrypoint-initdb.d
     image: mysql:8.0-debian
-    container_name: mysql-db-user
+    container_name: mysql-ecommerce
     restart: always
     env_file:
       - .env
@@ -11,7 +13,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE_USER}
     ports:
       - "3307:3306"
     networks:
@@ -27,6 +28,18 @@ services:
     networks:
       - microservices-net
 
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: gateway-service
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+
   user-service:
     build:
       context: ./user-service
@@ -35,16 +48,36 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - microservices-net
     environment:
-      DATABASE_URL: jdbc:mysql://mysql-db-user:3306/${MYSQL_DATABASE_USER}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DATABASE_URL: jdbc:mysql://mysql-ecommerce:3306/${MYSQL_DATABASE_USER}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_DRIVER: com.mysql.cj.jdbc.Driver
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
-      - mysql-user
+      - mysql-ecommerce
+      - eureka-service
+
+  product-catalog-service:
+    build:
+      context: ./product-catalog-service
+    container_name: product-catalog-service
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8082:8082"
+    networks:
+      - microservices-net
+    environment:
+      DATABASE_URL: jdbc:mysql://mysql-ecommerce:3306/${MYSQL_DATABASE_PRODUCT}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_DRIVER: com.mysql.cj.jdbc.Driver
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql-ecommerce
       - eureka-service
 
 networks:

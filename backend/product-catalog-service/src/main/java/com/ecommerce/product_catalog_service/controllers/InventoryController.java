@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/inventory")
+@RequestMapping("/inventories")
 @RequiredArgsConstructor
 public class InventoryController {
 
@@ -33,7 +33,7 @@ public class InventoryController {
         return service.findAll();
     }
 
-    @GetMapping("/{productId}")
+    @GetMapping("/product/{productId}")
     public Inventory getByProductId(@PathVariable UUID productId) {
         return service.findByProductId(productId);
     }
@@ -44,12 +44,12 @@ public class InventoryController {
         return service.create(dto);
     }
 
-    @PutMapping("/{productId}")
+    @PutMapping("/product/{productId}")
     public Inventory update(@PathVariable UUID productId, @Valid @RequestBody InventoryCreateDTO dto) {
         return service.update(productId, dto);
     }
 
-    @PatchMapping("/{productId}/add")
+    @PatchMapping("/product/{productId}/add")
     public Inventory addQuantity(
             @PathVariable UUID productId,
             @RequestParam @Positive(message = "A quantidade deve ser maior que zero") int qty) {

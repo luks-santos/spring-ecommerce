@@ -30,6 +30,31 @@
         <tag/>
         <url/>
     </scm>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <active.profile>dev</active.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>homolog</id>
+            <properties>
+                <active.profile>homolog</active.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <active.profile>prod</active.profile>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <java.version>23</java.version>
         <spring-cloud.version>2024.0.1</spring-cloud.version>

@@ -56,7 +56,7 @@ public class InventoryController {
         return service.addQuantity(productId, qty);
     }
 
-    @PatchMapping("/{productId}/remove")
+    @PatchMapping("/product/{productId}/remove")
     public Inventory removeQuantity(
             @PathVariable UUID productId,
             @RequestParam @Positive(message = "A quantidade deve ser maior que zero") int qty) {

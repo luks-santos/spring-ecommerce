@@ -55,7 +55,7 @@ class InventoryControllerTest {
     void shouldReturnAllInventories() throws Exception {
         when(inventoryService.findAll()).thenReturn(inventories);
 
-        mockMvc.perform(get("/inventory")
+        mockMvc.perform(get("/inventories")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -67,7 +67,7 @@ class InventoryControllerTest {
     void shouldReturnInventoryByProductId() throws Exception {
         when(inventoryService.findByProductId(PRODUCT_ID)).thenReturn(inventory);
 
-        mockMvc.perform(get("/inventory/{productId}", PRODUCT_ID)
+        mockMvc.perform(get("/inventories/product/{productId}", PRODUCT_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.product.id", is(inventory.getProduct().getId().toString())))
@@ -78,7 +78,7 @@ class InventoryControllerTest {
     void shouldCreateInventory() throws Exception {
         when(inventoryService.create(any(InventoryCreateDTO.class))).thenReturn(inventory);
 
-        mockMvc.perform(post("/inventory")
+        mockMvc.perform(post("/inventories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inventoryCreateDTO)))
                 .andExpect(status().isCreated())
@@ -90,7 +90,7 @@ class InventoryControllerTest {
     void shouldUpdateInventory() throws Exception {
         when(inventoryService.update(eq(PRODUCT_ID), any(InventoryCreateDTO.class))).thenReturn(inventory);
 
-        mockMvc.perform(put("/inventory/{productId}", PRODUCT_ID)
+        mockMvc.perform(put("/inventories/product/{productId}", PRODUCT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inventoryCreateDTO)))
                 .andExpect(status().isOk())
@@ -105,7 +105,7 @@ class InventoryControllerTest {
 
         when(inventoryService.addQuantity(PRODUCT_ID, quantityToAdd)).thenReturn(inventoryAddQty);
 
-        mockMvc.perform(patch("/inventory/{productId}/add", PRODUCT_ID)
+        mockMvc.perform(patch("/inventories/product/{productId}/add", PRODUCT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("qty", String.valueOf(quantityToAdd)))
                 .andExpect(status().isOk())
@@ -120,7 +120,7 @@ class InventoryControllerTest {
 
         when(inventoryService.removeQuantity(PRODUCT_ID, quantityToRemove)).thenReturn(inventoryRemoveQty);
 
-        mockMvc.perform(patch("/inventory/{productId}/remove", PRODUCT_ID)
+        mockMvc.perform(patch("/inventories/product/{productId}/remove", PRODUCT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("qty", String.valueOf(quantityToRemove)))
                 .andExpect(status().isOk())

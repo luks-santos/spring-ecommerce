@@ -22,7 +22,7 @@ RUN ./mvnw dependency:go-offline
 COPY ./src /root/src
 
 # Compila e empacota o projeto
-RUN ./mvnw clean install -Phomolog -DskipTests
+RUN ./mvnw clean install -Phomolog
 
 # Comando para iniciar a aplicação
 ENTRYPOINT ["java","-jar","/root/target/product-catalog-service-0.0.1-SNAPSHOT.jar"]

@@ -3,7 +3,7 @@ FROM eclipse-temurin:23.0.2_7-jdk-alpine
 # Instala bash e dependências básicas
 RUN apk add --no-cache bash
 
-EXPOSE 8080
+EXPOSE 8081
 WORKDIR /root
 
 # Copia os arquivos necessários
@@ -22,7 +22,7 @@ RUN ./mvnw dependency:go-offline
 COPY ./src /root/src
 
 # Compila e empacota o projeto
-RUN ./mvnw clean install -Pprod
+RUN ./mvnw clean install -Phomolog
 
 # Comando para iniciar a aplicação
 ENTRYPOINT ["java","-jar","/root/target/user-service-0.0.1-SNAPSHOT.jar"]

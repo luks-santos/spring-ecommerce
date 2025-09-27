@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class UserDTO {
 
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "User first name must not be empty")
     private String firstName;

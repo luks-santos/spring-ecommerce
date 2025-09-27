@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - -develop
     paths:
       - 'backend/user-service/**' 
   pull_request:

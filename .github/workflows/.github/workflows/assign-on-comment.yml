@@ -1,0 +1,19 @@
+name: Assign Issue
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  assign:
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign the user 
+        uses: takanome-dev/assign-issue-action@edge
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          days_until_unassign: 40
+          

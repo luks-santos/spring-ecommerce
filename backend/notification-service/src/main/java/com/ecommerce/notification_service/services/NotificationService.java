@@ -21,10 +21,7 @@ public class NotificationService {
 
     @Transactional
     public void sendNotification(NotificationData data) {
-        // Enviar notificação usando Template Method
         emailTemplate.send(data);
-
-        // Salvar log
         saveLog(data, "SUCCESS");
     }
 

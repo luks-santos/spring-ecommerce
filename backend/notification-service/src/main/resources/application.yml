@@ -2,19 +2,17 @@ spring:
   application:
     name: notification-service
 
-  # RabbitMQ Configuration
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
 
-  # Email Configuration (Gmail)
   mail:
     host: smtp.gmail.com
     port: 587
-    username: seu-email@gmail.com
-    password: sua-senha-de-app
+    username: your-email@gmail.com
+    password: your-app-password
     properties:
       mail:
         smtp:
@@ -26,7 +24,6 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
-  # Database Configuration (H2 para desenvolvimento)
   datasource:
     url: jdbc:h2:mem:notificationdb
     driver-class-name: org.h2.Driver
@@ -44,11 +41,9 @@ spring:
       enabled: true
       path: /h2-console
 
-# Server Configuration
 server:
   port: 8084
 
-# Eureka Configuration
 eureka:
   client:
     service-url:
@@ -56,8 +51,11 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# Notification Configuration
+app:
+  frontend:
+    url: http://localhost:8080
+
 notification:
   email:
     from: noreply@ecommerce.com
-    provider: console # pode ser: gmail, console, sendgrid
+    provider: console

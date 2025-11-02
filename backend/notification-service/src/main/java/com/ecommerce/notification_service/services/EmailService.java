@@ -21,7 +21,6 @@ public class EmailService {
             List<EmailStrategy> strategyList,
             @Value("${notification.email.provider}") String provider
     ) {
-        // Converte lista de strategies em um Map (provider -> strategy)
         this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
                         EmailStrategy::getProviderName,
@@ -32,9 +31,6 @@ public class EmailService {
         log.info("Email provider configured: {}", provider);
     }
 
-    /**
-     * Envia email HTML usando o provider configurado
-     */
     public void sendHtmlEmail(String to, String subject, String body) {
         EmailStrategy strategy = strategies.get(selectedProvider);
 
@@ -47,9 +43,6 @@ public class EmailService {
         strategy.sendEmail(to, subject, body);
     }
 
-    /**
-     * Permite enviar com um provider específico
-     */
     public void sendHtmlEmail(String to, String subject, String body, String provider) {
         EmailStrategy strategy = strategies.get(provider);
 

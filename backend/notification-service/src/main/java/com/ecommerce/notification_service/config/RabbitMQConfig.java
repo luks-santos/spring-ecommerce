@@ -15,30 +15,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // Nome das exchanges
     public static final String USER_EXCHANGE = "user.exchange";
     public static final String ORDER_EXCHANGE = "order.exchange";
 
-    // Nome das queues
     public static final String USER_REGISTRATION_QUEUE = "user.registration.queue";
     public static final String ORDER_CONFIRMATION_QUEUE = "order.confirmation.queue";
 
-    // Routing keys
     public static final String USER_REGISTRATION_KEY = "user.registration";
     public static final String ORDER_CONFIRMATION_KEY = "order.confirmation";
 
-    /**
-     * Conversor de mensagens para JSON
-     * Permite enviar/receber objetos Java como JSON
-     */
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
-    /**
-     * Template para enviar mensagens (será usado por outros serviços)
-     */
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
@@ -46,28 +36,16 @@ public class RabbitMQConfig {
         return template;
     }
 
-    // ========== USER REGISTRATION ==========
-
-    /**
-     * Exchange para eventos de usuário
-     * Topic exchange permite roteamento flexível com routing keys
-     */
     @Bean
     public TopicExchange userExchange() {
         return new TopicExchange(USER_EXCHANGE);
     }
 
-    /**
-     * Fila para receber eventos de registro de usuário
-     */
     @Bean
     public Queue userRegistrationQueue() {
-        return new Queue(USER_REGISTRATION_QUEUE, true); // true = durable (persiste após restart)
+        return new Queue(USER_REGISTRATION_QUEUE, true);
     }
 
-    /**
-     * Binding: conecta a queue com a exchange usando uma routing key
-     */
     @Bean
     public Binding userRegistrationBinding() {
         return BindingBuilder
@@ -75,8 +53,6 @@ public class RabbitMQConfig {
                 .to(userExchange())
                 .with(USER_REGISTRATION_KEY);
     }
-
-    // ========== ORDER CONFIRMATION ==========
 
     @Bean
     public TopicExchange orderExchange() {

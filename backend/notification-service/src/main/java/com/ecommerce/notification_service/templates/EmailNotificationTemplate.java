@@ -38,7 +38,6 @@ public class EmailNotificationTemplate extends NotificationTemplate {
     protected void validateData(NotificationData data) {
         super.validateData(data);
 
-        // Validação específica de email
         if (!data.getRecipient().contains("@")) {
             throw new IllegalArgumentException("Invalid email address");
         }

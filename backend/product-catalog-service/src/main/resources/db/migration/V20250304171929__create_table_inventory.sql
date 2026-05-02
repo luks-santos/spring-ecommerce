@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS inventories (
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quantity INT NOT NULL,
-    product_id BINARY(16) UNIQUE,
+    product_id UUID UNIQUE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );

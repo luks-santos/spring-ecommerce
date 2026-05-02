@@ -12,6 +12,7 @@ The backend is responsible for managing the core logic of the e-commerce platfor
 
 ## Additional Components
 - **Service Discovery (Eureka)**: Automatically detects service instances and manages communication between them.  
+- **PostgreSQL**: Relational database used by stateful services, with one database per bounded service context.
 - **Docker**: Uses Docker containers to isolate, package, and deploy each microservice, providing a scalable and portable solution. 
 - **CI Pipeline**: Automates testing of each microservice. 
 - **API Gateway**: Routes client requests to the appropriate microservices.

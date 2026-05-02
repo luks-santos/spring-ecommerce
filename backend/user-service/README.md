@@ -50,8 +50,8 @@ The User Service follows a **layered architecture** with security integration:
 └─────────────┼───────────────────────┘
               ▼
      ┌────────────────────┐
-     │   MySQL Database   │
-     │  e-commerce-user   │
+     │ PostgreSQL Database│
+     │      user_db       │
      └────────────────────┘
 ```
 
@@ -85,7 +85,7 @@ It contains details about endpoints, parameters, responses, and usage examples.
 - Spring Boot 3.x.x
 - Spring Security with JWT
 - Spring Data JPA (Data access)
-- MySQL 8.0 (Database)
+- PostgreSQL 16 (Database)
 - BCrypt (Password hashing)
 - Spring Cloud Netflix Eureka Client (Service Discovery)
 - Lombok (Boilerplate reduction)
@@ -100,9 +100,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/e-commerce-user
-    username: root
-    password: root
+    url: jdbc:postgresql://localhost:5433/user_db
+    username: ecommerce
+    password: ecommerce
 
 jwt:
   secret: your-secret-key
@@ -110,17 +110,17 @@ jwt:
 ```
 
 ## Database Setup
-The service uses MySQL database named `e-commerce-user`. Make sure to:
-1. Have MySQL 8.0 running locally
-2. Create the database `e-commerce-user`:
+The service uses PostgreSQL database named `user_db`. Make sure to:
+1. Have PostgreSQL 16 running locally
+2. Create the database `user_db`:
    ```sql
-   CREATE DATABASE `e-commerce-user`;
+   CREATE DATABASE user_db;
    ```
 3. Configure connection details in application.yml
 
 ## Running the Service Locally
 1. Ensure Java 23 and Maven are installed.
-2. Make sure MySQL is running with the `e-commerce-user` database created.
+2. Make sure PostgreSQL is running with the `user_db` database created.
 3. Make sure the Eureka Service is running on port 8761.
 4. Build the project with Maven:
    ```sh

@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS refresh_tokens (
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     refresh_token VARCHAR(10000) NOT NULL,
     revoked BOOLEAN DEFAULT FALSE,
-    user_id BINARY(16),
+    user_id UUID,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

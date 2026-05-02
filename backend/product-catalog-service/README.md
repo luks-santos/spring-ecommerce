@@ -44,8 +44,8 @@ The Product Catalog Service follows a **layered architecture** pattern:
 └─────────────┼───────────────────────┘
               ▼
      ┌────────────────────┐
-     │   MySQL Database   │
-     │ e-commerce-product │
+     │ PostgreSQL Database│
+     │     product_db     │
      └────────────────────┘
 ```
 
@@ -74,7 +74,7 @@ It contains details about endpoints, parameters, responses, and usage examples.
 - Java 23 with Maven
 - Spring Boot 3.x.x
 - Spring Data JPA (Data access)
-- MySQL 8.0 (Database)
+- PostgreSQL 16 (Database)
 - Spring Cloud Netflix Eureka Client (Service Discovery)
 - Spring Validation (Request validation)
 - Lombok (Boilerplate reduction)
@@ -89,26 +89,26 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/e-commerce-product
-    username: root
-    password: root
+    url: jdbc:postgresql://localhost:5433/product_db
+    username: ecommerce
+    password: ecommerce
   jpa:
     hibernate:
       ddl-auto: update
 ```
 
 ## Database Setup
-The service uses MySQL database named `e-commerce-product`. Make sure to:
-1. Have MySQL 8.0 running locally
-2. Create the database `e-commerce-product`:
+The service uses PostgreSQL database named `product_db`. Make sure to:
+1. Have PostgreSQL 16 running locally
+2. Create the database `product_db`:
    ```sql
-   CREATE DATABASE `e-commerce-product`;
+   CREATE DATABASE product_db;
    ```
-3. Configure connection details in application-dev.yml (default: root/root)
+3. Configure connection details in application-dev.yml (default: ecommerce/ecommerce)
 
 ## Running the Service Locally
 1. Ensure Java 23 and Maven are installed.
-2. Make sure MySQL is running with the `e-commerce-product` database created.
+2. Make sure PostgreSQL is running with the `product_db` database created.
 3. Make sure the Eureka Service is running on port 8761.
 4. Build the project with Maven:
    ```sh

@@ -1,20 +1,16 @@
-version: '3.8'
-
 services:
-  mysql-ecommerce:
+  postgres-ecommerce:
     volumes:
-      - ./init-mysql/:/docker-entrypoint-initdb.d
-    image: mysql:8.0-debian
-    container_name: mysql-ecommerce
+      - ./init-postgres/:/docker-entrypoint-initdb.d
+    image: postgres:16-alpine
+    container_name: postgres-ecommerce
     restart: always
-    env_file:
-      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce}
     ports:
-      - "3307:3306"
+      - "5433:5432"
     networks:
       - microservices-net
 
@@ -45,19 +41,17 @@ services:
       context: ./user-service
     container_name: user-service
     restart: always
-    env_file:
-      - .env
     ports:
-      - "8081:8080"
+      - "8081:8081"
     networks:
       - microservices-net
     environment:
-      DATABASE_URL: jdbc:mysql://mysql-ecommerce:3306/${MYSQL_DATABASE_USER}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      DB_DRIVER: com.mysql.cj.jdbc.Driver
-      DB_USER: ${MYSQL_USER}
-      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DATABASE_URL: jdbc:postgresql://postgres-ecommerce:5432/${POSTGRES_DATABASE_USER:-user_db}
+      DB_DRIVER: org.postgresql.Driver
+      DB_USER: ${POSTGRES_USER:-ecommerce}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
     depends_on:
-      - mysql-ecommerce
+      - postgres-ecommerce
       - eureka-service
 
   product-catalog-service:
@@ -65,19 +59,17 @@ services:
       context: ./product-catalog-service
     container_name: product-catalog-service
     restart: always
-    env_file:
-      - .env
     ports:
       - "8082:8082"
     networks:
       - microservices-net
     environment:
-      DATABASE_URL: jdbc:mysql://mysql-ecommerce:3306/${MYSQL_DATABASE_PRODUCT}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      DB_DRIVER: com.mysql.cj.jdbc.Driver
-      DB_USER: ${MYSQL_USER}
-      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DATABASE_URL: jdbc:postgresql://postgres-ecommerce:5432/${POSTGRES_DATABASE_PRODUCT:-product_db}
+      DB_DRIVER: org.postgresql.Driver
+      DB_USER: ${POSTGRES_USER:-ecommerce}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
     depends_on:
-      - mysql-ecommerce
+      - postgres-ecommerce
       - eureka-service
 
   rabbitmq:
@@ -98,8 +90,6 @@ services:
       context: ./notification-service
     container_name: notification-service
     restart: always
-    env_file:
-      - .env
     ports:
       - "8084:8084"
     networks:
@@ -115,8 +105,8 @@ services:
       NOTIFICATION_EMAIL_PROVIDER: ${NOTIFICATION_EMAIL_PROVIDER:-console}
       SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp.gmail.com}
       SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
-      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
-      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
     depends_on:
       - rabbitmq
       - eureka-service

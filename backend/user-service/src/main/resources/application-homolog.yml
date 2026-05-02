@@ -9,7 +9,8 @@ spring:
     driver-class-name: ${DB_DRIVER}
 
   jpa:
-    database: mysql
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     generate-ddl: true
     hibernate:

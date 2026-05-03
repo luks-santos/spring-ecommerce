@@ -33,7 +33,7 @@ microservico, sem assumir conhecimento previo profundo de arquitetura distribuid
    - CRUD de catalogo.
    - Controle de inventario.
    - Notificacao por evento.
-   - Fluxos futuros: carrinho, pedido e pagamento.
+   - Fluxo MVP: carrinho, pedido, pagamento e notificacao.
 
 5. `04-servicos/`
    - Um arquivo por microservico.
@@ -70,12 +70,19 @@ microservico, sem assumir conhecimento previo profundo de arquitetura distribuid
     - Proximas entregas.
     - Ordem recomendada de implementacao.
 
+12. `14-debito-autenticacao.md`
+    - Limites do modelo atual de autenticacao.
+    - Riscos aceitos no MVP de estudo.
+    - Modelo alvo para gateway, servicos e eventos.
+    - Criterios para fechar a divida tecnica.
+
 ## Ordem recomendada para escrever
 
 1. Comecar por `00-visao-geral.md`, `01-como-rodar-local.md` e `10-roadmap.md`.
 2. Documentar os servicos ja existentes: user, product catalog, notification, gateway e eureka.
 3. Documentar contratos REST e eventos RabbitMQ.
-4. So depois escrever os documentos dos servicos futuros: cart, order e payment.
+4. Documentar dividas tecnicas explicitas antes de evoluir seguranca,
+   observabilidade e deploy.
 
 ## Criterio de qualidade
 

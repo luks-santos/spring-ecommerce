@@ -1,6 +1,7 @@
 package com.ecommerce.order_service.controllers;
 
 import com.ecommerce.order_service.dto.OrderCreateDTO;
+import com.ecommerce.order_service.dto.OrderFromCartDTO;
 import com.ecommerce.order_service.dto.OrderResponseDTO;
 import com.ecommerce.order_service.dto.OrderUpdateStatusDTO;
 import com.ecommerce.order_service.entities.OrderStatusHistory;
@@ -30,6 +31,13 @@ public class OrderController {
     @Operation(summary = "Create order", description = "Creates a new order from cart items")
     public OrderResponseDTO createOrder(@Valid @RequestBody OrderCreateDTO dto) {
         return orderService.createOrder(dto);
+    }
+
+    @PostMapping("/from-cart")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create order from cart", description = "Creates an order from the current user cart and decrements inventory")
+    public OrderResponseDTO createOrderFromCart(@Valid @RequestBody OrderFromCartDTO dto) {
+        return orderService.createOrderFromCart(dto);
     }
 
     @GetMapping("/{orderId}")

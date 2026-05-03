@@ -6,6 +6,7 @@ import com.ecommerce.user_service.dto.UserRegistrationDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
 import com.ecommerce.user_service.entities.User;
 import com.ecommerce.user_service.enums.TokenType;
+import com.ecommerce.user_service.events.UserEventPublisher;
 import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.RefreshTokenRepo;
@@ -32,6 +33,7 @@ public class AuthService {
     private final JwtTokenGenerator jwtTokenGenerator;
     private final RefreshTokenRepo refreshTokenRepo;
     private final UserMapper userMapper;
+    private final UserEventPublisher userEventPublisher;
 
     public AuthResponseDTO getJwtTokensAfterAuthentication(Authentication authentication, HttpServletResponse response) {
         try {
@@ -155,6 +157,7 @@ public class AuthService {
             saveUserRefreshToken(userEntity, refreshToken);
 
             createRefreshTokenCookie(httpServletResponse, refreshToken);
+            userEventPublisher.publishRegistration(savedUser);
 
             log.info("[AuthService:registerUser]User: {} Successfully registered", savedUser.getEmail());
             return AuthResponseDTO.builder()

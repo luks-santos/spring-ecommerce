@@ -32,3 +32,9 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+services:
+  shopping-cart:
+    url: ${SHOPPING_CART_SERVICE_URL:http://shopping-cart-service:8083}
+  product-catalog:
+    url: ${PRODUCT_CATALOG_SERVICE_URL:http://product-catalog-service:8082}

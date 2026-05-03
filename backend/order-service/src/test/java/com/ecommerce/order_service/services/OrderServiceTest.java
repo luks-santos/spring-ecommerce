@@ -1,7 +1,10 @@
 package com.ecommerce.order_service.services;
 
+import com.ecommerce.order_service.clients.CartItemResponseDTO;
+import com.ecommerce.order_service.clients.CartResponseDTO;
 import com.ecommerce.order_service.dto.OrderCreateDTO;
 import com.ecommerce.order_service.dto.OrderItemDTO;
+import com.ecommerce.order_service.dto.OrderFromCartDTO;
 import com.ecommerce.order_service.dto.OrderResponseDTO;
 import com.ecommerce.order_service.enums.OrderStatus;
 import com.ecommerce.order_service.repositories.OrderItemRepo;
@@ -12,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,6 +25,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class OrderServiceTest {
@@ -36,12 +42,17 @@ class OrderServiceTest {
     @Mock
     private RabbitTemplate rabbitTemplate;
 
+    @Mock
+    private RestTemplate restTemplate;
+
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        orderService = new OrderService(orderRepo, orderItemRepo, statusHistoryRepo, rabbitTemplate);
+        orderService = new OrderService(orderRepo, orderItemRepo, statusHistoryRepo, rabbitTemplate, restTemplate);
+        ReflectionTestUtils.setField(orderService, "shoppingCartServiceUrl", "http://cart");
+        ReflectionTestUtils.setField(orderService, "productCatalogServiceUrl", "http://catalog");
     }
 
     @Test
@@ -81,5 +92,38 @@ class OrderServiceTest {
 
         assertThat(response.getStatus()).isEqualTo(OrderStatus.PAYMENT_CONFIRMED);
         assertThat(response.getPaymentId()).isEqualTo(paymentId);
+    }
+
+    @Test
+    void createOrderFromCartReadsCartAndCreatesOrder() {
+        UUID userId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        CartResponseDTO cart = new CartResponseDTO(
+                UUID.randomUUID(),
+                userId,
+                List.of(new CartItemResponseDTO(
+                        UUID.randomUUID(),
+                        productId,
+                        2,
+                        new BigDecimal("20.00"),
+                        new BigDecimal("40.00"),
+                        null
+                )),
+                new BigDecimal("40.00"),
+                2,
+                null,
+                null
+        );
+        when(restTemplate.getForObject(eq("http://cart/api/carts/user/{userId}"), eq(CartResponseDTO.class), eq(userId)))
+                .thenReturn(cart);
+        when(orderRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        OrderResponseDTO response = orderService.createOrderFromCart(
+                new OrderFromCartDTO(userId, "customer@example.com", "Rua Teste, 123")
+        );
+
+        assertThat(response.getTotalAmount()).isEqualByComparingTo("40.00");
+        assertThat(response.getTotalItems()).isEqualTo(2);
+        assertThat(response.getItems()).extracting("productId").containsExactly(productId);
     }
 }

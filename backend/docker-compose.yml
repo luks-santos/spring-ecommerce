@@ -50,9 +50,18 @@ services:
       DB_DRIVER: org.postgresql.Driver
       DB_USER: ${POSTGRES_USER:-ecommerce}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SHOPPING_CART_SERVICE_URL: http://shopping-cart-service:8083
+      PRODUCT_CATALOG_SERVICE_URL: http://product-catalog-service:8082
     depends_on:
       - postgres-ecommerce
+      - rabbitmq
       - eureka-service
+      - shopping-cart-service
+      - product-catalog-service
 
   product-catalog-service:
     build:

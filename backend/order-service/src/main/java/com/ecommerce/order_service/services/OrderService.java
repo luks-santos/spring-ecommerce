@@ -1,5 +1,6 @@
 package com.ecommerce.order_service.services;
 
+import com.ecommerce.order_service.clients.CartResponseDTO;
 import com.ecommerce.order_service.dto.*;
 import com.ecommerce.order_service.entities.Order;
 import com.ecommerce.order_service.entities.OrderItem;
@@ -14,7 +15,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -32,6 +35,13 @@ public class OrderService {
     private final OrderItemRepo orderItemRepo;
     private final OrderStatusHistoryRepo statusHistoryRepo;
     private final RabbitTemplate rabbitTemplate;
+    private final RestTemplate restTemplate;
+
+    @Value("${services.shopping-cart.url:http://localhost:8083}")
+    private String shoppingCartServiceUrl;
+
+    @Value("${services.product-catalog.url:http://localhost:8082}")
+    private String productCatalogServiceUrl;
 
     private static final String ORDER_EXCHANGE = "order.exchange";
     private static final String ORDER_CREATED_KEY = "order.created";
@@ -215,6 +225,39 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponseDTO createOrderFromCart(OrderFromCartDTO dto) {
+        log.info("Creating order from cart for user: {}", dto.userId());
+
+        CartResponseDTO cart = restTemplate.getForObject(
+                shoppingCartServiceUrl + "/api/carts/user/{userId}",
+                CartResponseDTO.class,
+                dto.userId()
+        );
+
+        if (cart == null || cart.items() == null || cart.items().isEmpty()) {
+            throw new BadRequestException("Cart is empty");
+        }
+
+        List<OrderItemDTO> orderItems = cart.items().stream()
+                .map(item -> new OrderItemDTO(item.productId(), item.quantity(), item.price()))
+                .toList();
+
+        for (OrderItemDTO item : orderItems) {
+            decrementInventory(item);
+        }
+
+        OrderResponseDTO order = createOrder(new OrderCreateDTO(
+                dto.userId(),
+                dto.userEmail(),
+                dto.shippingAddress(),
+                orderItems
+        ));
+
+        clearCart(dto.userId());
+        return order;
+    }
+
+    @Transactional
     public OrderResponseDTO confirmPayment(UUID orderId, UUID paymentId) {
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
@@ -321,6 +364,24 @@ public class OrderService {
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();
+    }
+
+    private void decrementInventory(OrderItemDTO item) {
+        restTemplate.patchForObject(
+                productCatalogServiceUrl + "/inventories/product/{productId}/remove?qty={quantity}",
+                null,
+                Object.class,
+                item.productId(),
+                item.quantity()
+        );
+    }
+
+    private void clearCart(UUID userId) {
+        try {
+            restTemplate.delete(shoppingCartServiceUrl + "/api/carts/user/{userId}/clear", userId);
+        } catch (Exception e) {
+            log.warn("Order created, but cart cleanup failed for user: {}", userId, e);
+        }
     }
 
     private Map<String, Object> toOrderConfirmationEvent(Order order) {

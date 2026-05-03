@@ -56,3 +56,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+
+services:
+  shopping-cart:
+    url: ${SHOPPING_CART_SERVICE_URL:http://localhost:8083}
+  product-catalog:
+    url: ${PRODUCT_CATALOG_SERVICE_URL:http://localhost:8082}

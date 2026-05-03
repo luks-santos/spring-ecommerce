@@ -220,6 +220,7 @@ Rotas via Gateway:
 | Metodo | Rota | Descricao |
 | --- | --- | --- |
 | `POST` | `/api/orders` | Cria pedido |
+| `POST` | `/api/orders/from-cart` | Cria pedido a partir do carrinho e baixa estoque |
 | `GET` | `/api/orders/{orderId}` | Busca pedido por ID |
 | `GET` | `/api/orders/user/{userId}` | Lista pedidos por usuario |
 | `GET` | `/api/orders/status/{status}` | Lista pedidos por status |
@@ -242,6 +243,16 @@ Exemplo de body:
       "unitPrice": 199.90
     }
   ]
+}
+```
+
+Exemplo de pedido a partir do carrinho:
+
+```json
+{
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "userEmail": "cliente@example.com",
+  "shippingAddress": "Rua Exemplo, 123"
 }
 ```
 
@@ -284,6 +295,19 @@ Exemplo de body:
 6. `POST /api/product-catalog/inventories`.
 7. Testar `PATCH add/remove` no inventario.
 8. `POST /api/carts/user/{userId}/items`.
-9. `POST /api/orders`.
+9. `POST /api/orders/from-cart`.
 10. `POST /api/payments`.
 11. `POST /api/payments/{paymentId}/confirm`.
+
+## Fluxo MVP de Estudo
+
+1. O usuario se cadastra em `user-service`.
+2. `user-service` publica `user.registration` no RabbitMQ.
+3. `notification-service` consome o evento e registra/envia a mensagem.
+4. O catalogo recebe produto e estoque.
+5. O carrinho recebe itens.
+6. `order-service` cria pedido a partir do carrinho.
+7. Durante a criacao do pedido, `order-service` chama o catalogo para baixar estoque.
+8. `payment-service` cria e confirma o pagamento simulado.
+9. `order-service` consome `payment.success`, atualiza o pedido para `PAYMENT_CONFIRMED` e publica `order.confirmation`.
+10. `notification-service` consome `order.confirmation`.

@@ -1,0 +1,37 @@
+name: Payment Service CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/payment-service/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/payment-service/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+          cache: 'maven'
+
+      - name: Instalar dependencias
+        run: mvn clean install -Ptest -DskipTests
+        working-directory: backend/payment-service
+
+      - name: Executar testes unitarios
+        run: mvn test
+        working-directory: backend/payment-service

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,8 +15,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class OrderConfirmationEvent extends BaseEvent {
-    private Long orderId;
-    private Long userId;
+    private UUID orderId;
+    private UUID userId;
     private String userEmail;
     private BigDecimal totalAmount;
     private String orderStatus;

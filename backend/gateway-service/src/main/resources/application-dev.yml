@@ -23,6 +23,21 @@ spring:
               filters:
                 - StripPrefix=2
 
+            - id: shopping-cart-service
+              uri: lb://shopping-cart-service
+              predicates:
+                - Path=/api/carts/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders/**
+
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payments/**
+
 eureka:
   client:
     service-url:

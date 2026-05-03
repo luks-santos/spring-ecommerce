@@ -3,6 +3,7 @@ package com.ecommerce.user_service.services;
 import com.ecommerce.user_service.config.jwt.JwtTokenGenerator;
 import com.ecommerce.user_service.dto.AuthResponseDTO;
 import com.ecommerce.user_service.entities.RefreshToken;
+import com.ecommerce.user_service.events.UserEventPublisher;
 import com.ecommerce.user_service.exceptions.ApiException;
 import com.ecommerce.user_service.mapper.UserMapper;
 import com.ecommerce.user_service.repositories.RefreshTokenRepo;
@@ -40,6 +41,9 @@ class AuthServiceTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private UserEventPublisher userEventPublisher;
 
     @Mock
     private HttpServletResponse response;

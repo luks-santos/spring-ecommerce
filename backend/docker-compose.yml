@@ -50,9 +50,18 @@ services:
       DB_DRIVER: org.postgresql.Driver
       DB_USER: ${POSTGRES_USER:-ecommerce}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SHOPPING_CART_SERVICE_URL: http://shopping-cart-service:8083
+      PRODUCT_CATALOG_SERVICE_URL: http://product-catalog-service:8082
     depends_on:
       - postgres-ecommerce
+      - rabbitmq
       - eureka-service
+      - shopping-cart-service
+      - product-catalog-service
 
   product-catalog-service:
     build:
@@ -70,6 +79,75 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
     depends_on:
       - postgres-ecommerce
+      - eureka-service
+
+  shopping-cart-service:
+    build:
+      context: ./shopping-cart-service
+    container_name: shopping-cart-service
+    restart: always
+    ports:
+      - "8083:8083"
+    networks:
+      - microservices-net
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres-ecommerce:5432/${POSTGRES_DATABASE_CART:-cart_db}
+      DB_DRIVER: org.postgresql.Driver
+      DB_USER: ${POSTGRES_USER:-ecommerce}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - postgres-ecommerce
+      - rabbitmq
+      - eureka-service
+
+  order-service:
+    build:
+      context: ./order-service
+    container_name: order-service
+    restart: always
+    ports:
+      - "8085:8085"
+    networks:
+      - microservices-net
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres-ecommerce:5432/${POSTGRES_DATABASE_ORDER:-order_db}
+      DB_DRIVER: org.postgresql.Driver
+      DB_USER: ${POSTGRES_USER:-ecommerce}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - postgres-ecommerce
+      - rabbitmq
+      - eureka-service
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment-service
+    restart: always
+    ports:
+      - "8086:8086"
+    networks:
+      - microservices-net
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres-ecommerce:5432/${POSTGRES_DATABASE_PAYMENT:-payment_db}
+      DB_DRIVER: org.postgresql.Driver
+      DB_USER: ${POSTGRES_USER:-ecommerce}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - postgres-ecommerce
+      - rabbitmq
       - eureka-service
 
   rabbitmq:

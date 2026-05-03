@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: '@active.profile@'
+  application:
+    name: shopping-cart-service

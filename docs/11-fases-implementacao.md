@@ -255,3 +255,24 @@ Ordem sugerida de execucao:
 A fase mais critica e a **Fase 6**, porque e nela que o projeto deixa de ser uma colecao de servicos independentes e passa a ter um fluxo real de e-commerce.
 
 Antes dessa fase, o foco e construir pecas bem isoladas. A partir dela, o foco passa a ser consistencia entre servicos, tratamento de falhas, eventos, status de pedido, estoque e notificacoes.
+
+## Status do MVP de estudo
+
+Atualizado na branch `mvp-complete-study-flow`.
+
+Para uma primeira versao didatica, foram cobertos:
+
+- `shopping-cart-service` com persistencia, Docker, Compose, Gateway, CI e testes basicos.
+- `order-service` com persistencia, criacao manual de pedido, criacao de pedido a partir do carrinho, baixa de estoque via REST, eventos RabbitMQ, Docker, Compose, Gateway, CI e testes basicos.
+- `payment-service` com pagamento simulado, eventos RabbitMQ, Docker, Compose, Gateway, CI e testes basicos.
+- `user-service` publicando evento `user.registration` para o `notification-service`.
+- `notification-service` consumindo eventos de cadastro e confirmacao de pedido.
+- Gateway e Compose atualizados para os servicos do fluxo.
+
+Ainda ficam como evolucao depois do MVP:
+
+- compensacao de estoque quando pedido ou pagamento falha depois de baixa parcial;
+- idempotencia em eventos e endpoints de pagamento;
+- testes integrados com Testcontainers;
+- observabilidade com Actuator, Prometheus e Grafana;
+- hardening de seguranca no Gateway e propagacao real de identidade entre servicos.

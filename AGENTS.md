@@ -118,8 +118,7 @@ Observacao: nao existe Maven parent/agregador na raiz do backend. Rode comandos 
 - Os READMEs citam servicos e rotas ainda inexistentes, como `order-service`.
 - `gateway-service` documenta rotas que nao estao configuradas.
 - Banco local agora usa PostgreSQL via Docker Compose, com bancos `user_db` e `product_db`.
-- `notification-service` usa Java 25/Spring Boot 3.5.7, enquanto os demais usam Java 23/Spring Boot 3.4.x.
-- O workflow `user-service-ci.yml` contem branch `-develop`, provavelmente erro de digitacao.
+- Serviços padronizados para Java 25, Spring Boot 3.5.14 e Spring Cloud 2025.0.2.
 - As chaves RSA em `user-service/src/main/resources/certs/` devem ser tratadas como material sensivel em ambientes reais.
 
 ## Proxima estrutura sugerida

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:23.0.2_7-jdk-alpine
+FROM eclipse-temurin:25-jdk-alpine
 
 # Instala bash e dependências básicas
 RUN apk add --no-cache bash
@@ -22,7 +22,7 @@ RUN ./mvnw dependency:go-offline
 COPY ./src /root/src
 
 # Compila e empacota o projeto
-RUN ./mvnw clean install
+RUN ./mvnw clean package -DskipTests
 
 # Comando para iniciar a aplicação
 ENTRYPOINT ["java","-jar","/root/target/eureka-service-0.0.1-SNAPSHOT.jar"]

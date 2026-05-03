@@ -3,7 +3,7 @@
 ## Pre-requisitos
 
 - Docker e Docker Compose.
-- Java 23 para os servicos atuais principais.
+- Java 25 para os servicos Java/Spring Boot.
 - Java 25 se for rodar `notification-service` fora do Docker.
 - Maven ou os wrappers `mvnw`/`mvnw.cmd` de cada servico.
 

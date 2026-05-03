@@ -35,7 +35,8 @@ The Eureka Server acts as the **central registry** in the microservices architec
 - **Automatic De-registration**: Unhealthy services are removed automatically
 
 ## Tech Stack
-- Java 23 with Maven
+- Java 25 with Maven
+- Spring Boot 3.5.14
 - Spring Boot 3.x.x
 - Spring Cloud Netflix Eureka Server
 - Spring Boot Actuator for health monitoring
@@ -65,7 +66,7 @@ The following services register with Eureka:
 - **order-service** (8083): Order management
 
 ## Running the Service Locally
-1. Ensure Java 23 and Maven are installed.
+1. Ensure Java 25 and Maven are installed.
 2. Build the project with Maven:
    ```sh
    mvn clean package

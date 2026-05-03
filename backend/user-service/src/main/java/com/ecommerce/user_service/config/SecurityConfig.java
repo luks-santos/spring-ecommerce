@@ -36,6 +36,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -158,9 +159,11 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
     @Bean
     SecurityFilterChain swaggerSecurityFilterChainConfig(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .securityMatcher(new AntPathRequestMatcher("/swagger-ui/**"))
-                .securityMatcher(new AntPathRequestMatcher("/v3/api-docs/**"))
-                .securityMatcher(new AntPathRequestMatcher("/swagger-ui.html"))
+                .securityMatcher(new OrRequestMatcher(
+                        new AntPathRequestMatcher("/swagger-ui/**"),
+                        new AntPathRequestMatcher("/v3/api-docs/**"),
+                        new AntPathRequestMatcher("/swagger-ui.html")
+                ))
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();

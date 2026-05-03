@@ -8,8 +8,8 @@ It handles user registration, authentication, profile management, and authorizat
 - Password encryption with BCrypt
 - Role-based access control (RBAC)
 - Profile management and updates
-- User search and management
-- Email validation and verification
+- Email validation
+- Refresh token persistence and logout token revocation
 
 ## Architecture
 The User Service follows a **layered architecture** with security integration:
@@ -45,7 +45,7 @@ The User Service follows a **layered architecture** with security integration:
 │  ┌─────────────────────────────┐   │
 │  │   Repository Layer (JPA)    │   │
 │  │   - UserRepository          │   │
-│  │   - RoleRepository          │   │
+│  │   - RefreshTokenRepository  │   │
 │  └──────────┬──────────────────┘   │
 └─────────────┼───────────────────────┘
               ▼
@@ -62,27 +62,39 @@ The User Service follows a **layered architecture** with security integration:
 - **Security Filter Chain**: Request filtering and validation
 
 ### Domain Model
-- **User**: Core user entity (username, email, password, roles)
-- **Role**: User roles for authorization
-- **UserProfile**: Extended user information
+- **User**: Core user entity with first name, last name, email, password, address, phone and role
+- **RefreshToken**: Refresh token persistence and revocation state
+- **UserRole**: User role enum for authorization
 
 ## API Documentation
 The API documentation is available at http://localhost:8081/swagger-ui.html after starting the service.
-It contains details about endpoints, parameters, responses, and usage examples.
+The OpenAPI JSON is available at http://localhost:8081/v3/api-docs.
 
-### Key Endpoints
+### Direct Service Endpoints
+
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/api/user/register` | Register new user | No |
-| POST | `/api/user/login` | Authenticate user | No |
-| GET | `/api/user/profile` | Get user profile | Yes |
-| PUT | `/api/user/profile` | Update profile | Yes |
-| GET | `/api/user/{id}` | Get user by ID | Yes (Admin) |
-| GET | `/api/user/all` | List all users | Yes (Admin) |
+| POST | `/sign-up` | Register a new user and return JWT tokens | No |
+| POST | `/sign-in` | Authenticate using HTTP Basic and return JWT tokens | Yes, Basic Auth |
+| POST | `/refresh-token` | Generate a new access token from a refresh token | Yes, Bearer refresh token |
+| GET | `/api/account/logged-user` | Get authenticated user profile | Yes, Bearer access token |
+| PUT | `/api/account/update_profile` | Update authenticated user profile | Yes, Bearer access token |
+
+### Gateway Endpoints
+
+The Gateway route `/api/user/**` uses `StripPrefix=2`, so external Gateway routes are:
+
+| Method | Gateway Endpoint |
+|--------|------------------|
+| POST | `/api/user/sign-up` |
+| POST | `/api/user/sign-in` |
+| POST | `/api/user/refresh-token` |
+| GET | `/api/user/api/account/logged-user` |
+| PUT | `/api/user/api/account/update_profile` |
 
 ## Tech Stack
-- Java 23 with Maven
-- Spring Boot 3.x.x
+- Java 25 with Maven
+- Spring Boot 3.5.14
 - Spring Security with JWT
 - Spring Data JPA (Data access)
 - PostgreSQL 16 (Database)
@@ -119,7 +131,7 @@ The service uses PostgreSQL database named `user_db`. Make sure to:
 3. Configure connection details in application.yml
 
 ## Running the Service Locally
-1. Ensure Java 23 and Maven are installed.
+1. Ensure Java 25 and Maven are installed.
 2. Make sure PostgreSQL is running with the `user_db` database created.
 3. Make sure the Eureka Service is running on port 8761.
 4. Build the project with Maven:
@@ -183,18 +195,18 @@ The following environment variables can be configured:
 ## Authentication Flow
 ```
 1. User Registration
-   POST /api/user/register
+   POST /sign-up
    → Create user with encrypted password
-   → Return success message
+   → Return access token and refresh token cookie
 
 2. User Login
-   POST /api/user/login
+   POST /sign-in
    → Validate credentials
-   → Generate JWT token
-   → Return token to client
+   → Generate JWT tokens
+   → Return access token and refresh token cookie
 
 3. Protected Request
-   GET /api/user/profile
+   GET /api/account/logged-user
    → Include JWT in Authorization header
    → Validate token
    → Return user data
@@ -203,7 +215,7 @@ The following environment variables can be configured:
 ## Monitoring
 - **Service Endpoint**: http://localhost:8081
 - **Swagger UI**: http://localhost:8081/swagger-ui.html
-- **Health Check**: http://localhost:8081/actuator/health
+- **OpenAPI JSON**: http://localhost:8081/v3/api-docs
 
 ## Integration with Other Services
 - **Gateway Service**: Routes requests from `/api/user/**`

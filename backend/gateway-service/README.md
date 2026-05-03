@@ -52,7 +52,8 @@ The Gateway acts as the **single entry point** for all client requests:
 - **Resilience**: Circuit breaker for failing services
 
 ## Tech Stack
-- Java 23 with Maven
+- Java 25 with Maven
+- Spring Boot 3.5.14
 - Spring Boot 3.x.x
 - Spring Cloud Gateway (Reactive gateway)
 - Spring Cloud Netflix Eureka Client (Service Discovery)
@@ -87,7 +88,7 @@ spring:
 The API documentation is available at http://localhost:8080/actuator after starting the service.
 
 ## Running the Service Locally
-1. Ensure Java 23 and Maven are installed.
+1. Ensure Java 25 and Maven are installed.
 2. Make sure the Eureka Service is running on port 8761.
 3. Build the project with Maven:
    ```sh

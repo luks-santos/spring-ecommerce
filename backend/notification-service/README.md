@@ -22,7 +22,7 @@ The service uses an **event-driven architecture** where it consumes events from 
 
 ## Tech Stack
 - Java 25 with Maven
-- Spring Boot 3.5.7
+- Spring Boot 3.5.14
 - Spring AMQP (RabbitMQ integration)
 - Spring Mail (Email sending)
 - Thymeleaf (HTML email templates)

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.14</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -55,16 +55,16 @@
     </profiles>
 
     <properties>
-        <java.version>23</java.version>
-        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <java.version>25</java.version>
+        <spring-cloud.version>2025.0.2</spring-cloud.version>
         <pitest.junit5.version>1.2.1</pitest.junit5.version>
-        <springdoc-openapi.version>2.6.0</springdoc-openapi.version>
+        <springdoc-openapi.version>2.8.17</springdoc-openapi.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.44</lombok.version>
         <lombok.mapstruct.binding.version>0.2.0</lombok.mapstruct.binding.version>
         <mockito.version>5.14.2</mockito.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <jacoco.maven.plugin.version>0.8.12</jacoco.maven.plugin.version>
+        <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
         <pitest-maven.version>1.17.4</pitest-maven.version>
         <maven-dependency-plugin.version>3.7.1</maven-dependency-plugin.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>

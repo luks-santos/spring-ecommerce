@@ -4,12 +4,10 @@ It provides a comprehensive product catalog with search, filtering, and inventor
 
 ## Key Features
 - Product management (creation, update, deletion, retrieval)
-- Product catalog browsing with pagination
-- Advanced product search and filtering
-- Category management and hierarchies
+- Product catalog browsing
+- Category management
 - Inventory tracking and stock management
-- Product pricing and discounts
-- Product images and media management
+- Product pricing
 
 ## Architecture
 The Product Catalog Service follows a **layered architecture** pattern:
@@ -50,29 +48,51 @@ The Product Catalog Service follows a **layered architecture** pattern:
 ```
 
 ### Domain Model
-- **Product**: Core product entity with details (name, description, price, SKU)
-- **Category**: Product categorization and hierarchies
+- **Product**: Core product entity with name, description, price and category
+- **Category**: Product categorization
 - **Inventory**: Stock tracking and availability
-- **ProductImage**: Product media and images
 
 ## API Documentation
 The API documentation is available at http://localhost:8082/swagger-ui.html after starting the service.
-It contains details about endpoints, parameters, responses, and usage examples.
+The OpenAPI JSON is available at http://localhost:8082/v3/api-docs.
 
-### Key Endpoints
+### Direct Service Endpoints
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/product-catalog/products` | List all products with pagination |
-| GET | `/api/product-catalog/products/{id}` | Get product details |
-| POST | `/api/product-catalog/products` | Create new product |
-| PUT | `/api/product-catalog/products/{id}` | Update product |
-| DELETE | `/api/product-catalog/products/{id}` | Delete product |
-| GET | `/api/product-catalog/categories` | List categories |
-| GET | `/api/product-catalog/products/search` | Search products |
+| GET | `/categories` | List categories |
+| GET | `/categories/{id}` | Get category by ID |
+| POST | `/categories` | Create category |
+| PUT | `/categories/{id}` | Update category |
+| DELETE | `/categories/{id}` | Delete category |
+| GET | `/products` | List products |
+| GET | `/products/{id}` | Get product by ID |
+| GET | `/products/category/{categoryId}` | List products by category |
+| POST | `/products` | Create product |
+| PUT | `/products/{id}` | Update product |
+| DELETE | `/products/{id}` | Delete product |
+| GET | `/inventories` | List inventories |
+| GET | `/inventories/product/{productId}` | Get inventory by product ID |
+| POST | `/inventories` | Create inventory |
+| PUT | `/inventories/product/{productId}` | Update inventory by product ID |
+| PATCH | `/inventories/product/{productId}/add?qty={qty}` | Add quantity to inventory |
+| PATCH | `/inventories/product/{productId}/remove?qty={qty}` | Remove quantity from inventory |
+
+### Gateway Endpoints
+
+The Gateway route `/api/product-catalog/**` uses `StripPrefix=2`, so external Gateway routes keep the same service paths after `/api/product-catalog`.
+
+Examples:
+
+| Method | Gateway Endpoint |
+|--------|------------------|
+| GET | `/api/product-catalog/categories` |
+| POST | `/api/product-catalog/products` |
+| GET | `/api/product-catalog/inventories/product/{productId}` |
 
 ## Tech Stack
-- Java 23 with Maven
-- Spring Boot 3.x.x
+- Java 25 with Maven
+- Spring Boot 3.5.14
 - Spring Data JPA (Data access)
 - PostgreSQL 16 (Database)
 - Spring Cloud Netflix Eureka Client (Service Discovery)
@@ -107,7 +127,7 @@ The service uses PostgreSQL database named `product_db`. Make sure to:
 3. Configure connection details in application-dev.yml (default: ecommerce/ecommerce)
 
 ## Running the Service Locally
-1. Ensure Java 23 and Maven are installed.
+1. Ensure Java 25 and Maven are installed.
 2. Make sure PostgreSQL is running with the `product_db` database created.
 3. Make sure the Eureka Service is running on port 8761.
 4. Build the project with Maven:
@@ -157,7 +177,7 @@ The following environment variables can be configured:
 ## Monitoring
 - **Service Endpoint**: http://localhost:8082
 - **Swagger UI**: http://localhost:8082/swagger-ui.html
-- **Health Check**: http://localhost:8082/actuator/health
+- **OpenAPI JSON**: http://localhost:8082/v3/api-docs
 
 ## Integration with Other Services
 - **Gateway Service**: Routes requests from `/api/product-catalog/**`

@@ -1,0 +1,763 @@
+{
+  "info": {
+    "_postman_id": "7f0b7a0f-8f7b-4f4f-8d5f-7f4b1f9c6a01",
+    "name": "Spring E-Commerce Services",
+    "description": "Colecao com as rotas HTTP atualmente implementadas nos services do projeto. Por padrao usa o Gateway em http://localhost:8080.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "user_direct_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "product_direct_url",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "email",
+      "value": "lucas@example.com"
+    },
+    {
+      "key": "password",
+      "value": "123456"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "category_id",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "product_id",
+      "value": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "item": [
+    {
+      "name": "User Service via Gateway",
+      "item": [
+        {
+          "name": "Sign Up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.access_token) pm.collectionVariables.set('access_token', data.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Lucas\",\n  \"lastName\": \"Silva\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"11999999999\",\n  \"address\": \"Rua Exemplo, 123\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/user/sign-up",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "sign-up"
+              ]
+            },
+            "description": "Cadastro de usuario. Retorna access_token e cria cookie refresh_token."
+          },
+          "response": []
+        },
+        {
+          "name": "Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.access_token) pm.collectionVariables.set('access_token', data.access_token);",
+                  "  const refreshCookie = pm.cookies.get('refresh_token');",
+                  "  if (refreshCookie) pm.collectionVariables.set('refresh_token', refreshCookie);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{email}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/user/sign-in",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "sign-in"
+              ]
+            },
+            "description": "Login via HTTP Basic. Retorna access_token."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.access_token) pm.collectionVariables.set('access_token', data.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{refresh_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/user/refresh-token",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "refresh-token"
+              ]
+            },
+            "description": "Gera novo access_token usando refresh token no header Authorization: Bearer."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logged User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/user/api/account/logged-user",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "api",
+                "account",
+                "logged-user"
+              ]
+            },
+            "description": "Consulta o usuario autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Lucas\",\n  \"lastName\": \"Silva\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"11888888888\",\n  \"address\": \"Rua Atualizada, 456\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/user/api/account/update_profile",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "api",
+                "account",
+                "update_profile"
+              ]
+            },
+            "description": "Atualiza o perfil do usuario autenticado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product Catalog Service via Gateway",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/categories",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/categories/{{category_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "categories",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id) pm.collectionVariables.set('category_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Eletronicos\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/categories",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Eletronicos e Informatica\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/categories/{{category_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "categories",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/categories/{{category_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "categories",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/products",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/products/{{product_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products By Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/products/category/{{category_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "products",
+                "category",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id) pm.collectionVariables.set('product_id', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Notebook Gamer\",\n  \"description\": \"Notebook com placa de video dedicada\",\n  \"price\": 5999.90,\n  \"categoryId\": \"{{category_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/products",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Notebook Gamer Atualizado\",\n  \"description\": \"Notebook com memoria e armazenamento atualizados\",\n  \"price\": 6499.90,\n  \"categoryId\": \"{{category_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/products/{{product_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/products/{{product_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Inventories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/inventories",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "inventories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Inventory By Product ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/inventories/product/{{product_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "inventories",
+                "product",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 10\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/inventories",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "inventories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Inventory By Product ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 20\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/inventories/product/{{product_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "inventories",
+                "product",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Inventory Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/inventories/product/{{product_id}}/add?qty=5",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "inventories",
+                "product",
+                "{{product_id}}",
+                "add"
+              ],
+              "query": [
+                {
+                  "key": "qty",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Inventory Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/product-catalog/inventories/product/{{product_id}}/remove?qty=2",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "product-catalog",
+                "inventories",
+                "product",
+                "{{product_id}}",
+                "remove"
+              ],
+              "query": [
+                {
+                  "key": "qty",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Infra",
+      "item": [
+        {
+          "name": "Eureka Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8761",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8761"
+            },
+            "description": "Dashboard web do Eureka. Esta rota abre HTML, nao JSON."
+          },
+          "response": []
+        },
+        {
+          "name": "RabbitMQ Management",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:15672",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "15672"
+            },
+            "description": "Console web do RabbitMQ. Usuario/senha padrao no compose: guest/guest."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

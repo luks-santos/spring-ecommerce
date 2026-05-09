@@ -1,26 +1,18 @@
 # AGENTS.md
 
-Guia operacional para agentes trabalhando neste repositório.
+Operational guide for agents working in this repository.
 
-## Contexto do projeto
+## Project context
 
-Este repositório implementa uma plataforma de e-commerce escalável baseada no projeto
-`Scalable E-Commerce Platform` do roadmap.sh.
+Scalable e-commerce platform based on the [roadmap.sh challenge](https://roadmap.sh/projects/scalable-ecommerce-platform). Backend in Java/Spring Boot with independent microservices for users, catalog, cart, orders, payments, and notifications.
 
-Objetivo arquitetural:
-- Backend Java/Spring Boot em microserviços.
-- Serviços independentes para usuários, catálogo, carrinho, pedidos, pagamentos e notificações.
-- API Gateway para entrada externa.
-- Service discovery com Eureka.
-- Docker Compose para ambiente local.
-- CI, testes, logs centralizados, monitoramento e estratégia de deploy como evolução do projeto.
+## Current structure
 
-## Estrutura atual
-
-```text
+```
 .
 ├── README.md
 ├── AGENTS.md
+├── docs/
 ├── .github/workflows/
 └── backend/
     ├── docker-compose.yml
@@ -29,136 +21,69 @@ Objetivo arquitetural:
     ├── gateway-service/
     ├── user-service/
     ├── product-catalog-service/
+    ├── shopping-cart-service/
+    ├── order-service/
+    ├── payment-service/
     └── notification-service/
 ```
 
-## Estado atual conhecido
+## Implemented services
 
-Implementado ou parcialmente implementado:
-- `eureka-service`: servidor Eureka para service discovery.
-- `gateway-service`: Spring Cloud Gateway com rotas para `user-service` e `product-catalog-service`.
-- `user-service`: cadastro, login, refresh token, JWT/RSA, Spring Security, JPA, Flyway e testes.
-- `product-catalog-service`: CRUD de categorias, produtos e inventario, JPA, Flyway e testes.
-- `notification-service`: consumo RabbitMQ para eventos de cadastro de usuario e confirmacao de pedido, envio por console/Gmail, templates Thymeleaf e log em H2.
-- `backend/docker-compose.yml`: sobe PostgreSQL, Eureka, Gateway, User, Product Catalog, RabbitMQ e Notification.
-- CI inicial para `user-service` e `product-catalog-service`.
+| Service | Port | Database | Description |
+|---------|------|----------|-------------|
+| eureka-service | 8761 | - | Service registry (Netflix Eureka) |
+| gateway-service | 8080 | - | API Gateway (Spring Cloud Gateway) |
+| user-service | 8081 | user_db | Registration, login, JWT/RSA, refresh token |
+| product-catalog-service | 8082 | product_db | Categories, products, inventory |
+| shopping-cart-service | 8083 | cart_db | Cart management per user |
+| notification-service | 8084 | H2 in-memory | Email/console notifications via RabbitMQ |
+| order-service | 8085 | order_db | Order creation from cart, status lifecycle |
+| payment-service | 8086 | payment_db | Simulated payments with RabbitMQ events |
 
-Ainda ausente ou incompleto:
-- `shopping-cart-service`.
-- `order-service`.
-- `payment-service`.
-- Integracao real entre `user-service` e `notification-service` via eventos RabbitMQ.
-- Fluxo real de pedidos, pagamento, reserva/baixa de estoque e notificacao.
-- Rotas do gateway para notificacao, pedido, carrinho e pagamento.
-- Logging centralizado, tracing distribuido, metricas Prometheus/Grafana e dashboards.
-- CI para `gateway-service`, `eureka-service` e `notification-service`.
-- Deploy de producao com Kubernetes, Docker Swarm ou equivalente.
-- Documentacao didatica consistente para estudar arquitetura, fluxos e decisoes.
+## RabbitMQ events
 
-## Comandos
+| Event | Producer | Consumer | Trigger |
+|-------|----------|----------|---------|
+| user.registration | user-service | notification-service | User registered |
+| order.confirmation | order-service | notification-service | Payment confirmed |
+| payment.success | payment-service | order-service | Payment confirmed |
+| payment.failed | payment-service | order-service | Payment failed |
+| payment.refunded | payment-service | order-service | Payment refunded |
 
-Executar a stack local:
+## Commands
+
+Run the full stack:
 
 ```powershell
 cd backend
 docker compose up --build
 ```
 
-Executar testes por servico:
+Run tests per service:
 
 ```powershell
-cd backend/user-service
+cd backend/<service-name>
 .\mvnw.cmd test
 ```
 
-```powershell
-cd backend/product-catalog-service
-.\mvnw.cmd test
-```
+No Maven parent aggregator at the root. Run commands per service.
 
-```powershell
-cd backend/gateway-service
-.\mvnw.cmd test
-```
+## Working standards
 
-```powershell
-cd backend/eureka-service
-.\mvnw.cmd test
-```
+- Keep each service isolated with its own database. Never share databases between services.
+- Use synchronous REST for simple queries between services. Use RabbitMQ events for async side effects.
+- Each service owns its Flyway migrations, README, Dockerfile, and tests.
+- When adding a service: include Dockerfile, README, pom.xml, application.yml, Flyway migrations (if relational), tests, docker-compose entry, gateway route, and CI workflow.
+- Use environment variables for credentials, URLs, and keys. No real secrets in the repository.
+- When changing an endpoint, update the README, tests, and gateway route to stay consistent.
+- Document inter-service contracts in `docs/` or in the service README.
 
-```powershell
-cd backend/notification-service
-.\mvnw.cmd test
-```
+## Pending work
 
-Observacao: nao existe Maven parent/agregador na raiz do backend. Rode comandos por servico.
-
-## Padroes de trabalho
-
-- Preserve a separacao por microservico. Evite acoplamento direto entre bancos de dados de servicos diferentes.
-- Prefira comunicacao REST sincrona para consultas simples entre servicos e eventos RabbitMQ para efeitos colaterais assincronos.
-- Mantenha cada servico com seu proprio banco, migrations Flyway, README e testes.
-- Ao adicionar um novo servico, inclua:
-  - `Dockerfile`
-  - `README.md`
-  - `pom.xml`
-  - `src/main/resources/application.yml`
-  - perfil local/dev se seguir o padrao existente
-  - migrations Flyway quando houver persistencia relacional
-  - testes de controller/service/repository conforme risco
-  - entrada no `backend/docker-compose.yml`
-  - rota no `gateway-service`
-  - workflow de CI em `.github/workflows/`
-- Use variaveis de ambiente para credenciais, URLs e chaves. Nao adicione segredos reais ao repositorio.
-- Antes de alterar endpoints, confira se README, testes e gateway continuam coerentes.
-- Se mexer em contrato entre servicos, documente o contrato em README ou em `docs/`.
-
-## Inconsistencias a corrigir
-
-- Os READMEs citam servicos e rotas ainda inexistentes, como `order-service`.
-- `gateway-service` documenta rotas que nao estao configuradas.
-- Banco local agora usa PostgreSQL via Docker Compose, com bancos `user_db` e `product_db`.
-- Serviços padronizados para Java 25, Spring Boot 3.5.14 e Spring Cloud 2025.0.2.
-- As chaves RSA em `user-service/src/main/resources/certs/` devem ser tratadas como material sensivel em ambientes reais.
-
-## Proxima estrutura sugerida
-
-```text
-.
-├── docs/
-│   ├── 00-visao-geral.md
-│   ├── 01-como-rodar-local.md
-│   ├── 02-arquitetura.md
-│   ├── 03-fluxos.md
-│   ├── 04-servicos/
-│   │   ├── user-service.md
-│   │   ├── product-catalog-service.md
-│   │   ├── notification-service.md
-│   │   ├── shopping-cart-service.md
-│   │   ├── order-service.md
-│   │   └── payment-service.md
-│   ├── 05-contratos-api.md
-│   ├── 06-eventos-rabbitmq.md
-│   ├── 07-bancos-e-migrations.md
-│   ├── 08-testes.md
-│   ├── 09-observabilidade.md
-│   └── 10-roadmap.md
-├── backend/
-│   ├── docker-compose.yml
-│   ├── services/
-│   │   ├── eureka-service/
-│   │   ├── gateway-service/
-│   │   ├── user-service/
-│   │   ├── product-catalog-service/
-│   │   ├── notification-service/
-│   │   ├── shopping-cart-service/
-│   │   ├── order-service/
-│   │   └── payment-service/
-│   └── infra/
-│       ├── postgres/
-│       ├── rabbitmq/
-│       ├── observability/
-│       └── scripts/
-```
-
-Nao mova pastas para essa estrutura sem antes ajustar paths de Docker Compose, GitHub Actions, READMEs e comandos de build.
+- Gateway JWT validation on private routes (see `docs/14-debito-autenticacao.md`).
+- Services deriving user identity from JWT token instead of request body.
+- Idempotent RabbitMQ consumers with `eventId` and `correlationId`.
+- Stock compensation on payment or order failure.
+- Integration tests with Testcontainers.
+- Observability: Actuator, Prometheus, Grafana, structured logs.
+- Production deploy (Kubernetes or Docker Swarm).

@@ -1,79 +1,53 @@
-# Rotas dos Services Implementados
+# HTTP Routes
 
-Este documento lista as rotas HTTP atualmente implementadas no projeto e expostas pelo Gateway quando a stack local esta em execucao.
+All routes are exposed via the Gateway at `http://localhost:8080`.
 
-Tambem foi criada uma colecao Postman importavel em:
+## Access points
 
-```text
-docs/postman/ecommerce-services.postman_collection.json
-```
+| Component | URL |
+|-----------|-----|
+| Gateway | http://localhost:8080 |
+| Eureka Dashboard | http://localhost:8761 |
+| User Service (direct) | http://localhost:8081 |
+| Product Catalog Service (direct) | http://localhost:8082 |
+| Shopping Cart Service (direct) | http://localhost:8083 |
+| Notification Service (direct) | http://localhost:8084 |
+| Order Service (direct) | http://localhost:8085 |
+| Payment Service (direct) | http://localhost:8086 |
+| RabbitMQ Management | http://localhost:15672 |
 
-## URLs Base
+## Swagger UI
 
-| Componente | URL |
-| --- | --- |
-| Gateway | `http://localhost:8080` |
-| Eureka Dashboard | `http://localhost:8761` |
-| User Service direto | `http://localhost:8081` |
-| Product Catalog Service direto | `http://localhost:8082` |
-| Shopping Cart Service direto | `http://localhost:8083` |
-| Notification Service direto | `http://localhost:8084` |
-| Order Service direto | `http://localhost:8085` |
-| Payment Service direto | `http://localhost:8086` |
-| RabbitMQ Management | `http://localhost:15672` |
+| Service | URL |
+|---------|-----|
+| User Service | http://localhost:8081/swagger-ui.html |
+| Product Catalog | http://localhost:8082/swagger-ui.html |
+| Shopping Cart | http://localhost:8083/swagger-ui.html |
+| Order Service | http://localhost:8085/swagger-ui.html |
+| Payment Service | http://localhost:8086/swagger-ui.html |
 
-## Swagger
+Notes:
+- `notification-service` has no REST endpoints. It operates via RabbitMQ.
+- `eureka-service` and `gateway-service` are infrastructure services with no business API.
+- The gateway uses `StripPrefix=2`, so some user-service routes appear with a doubled `/api` prefix externally (e.g. `/api/user/api/account/logged-user`).
 
-Os services HTTP atualmente implementados ja possuem Springdoc/OpenAPI configurado:
-
-| Service | Swagger UI | OpenAPI JSON |
-| --- | --- | --- |
-| User Service | `http://localhost:8081/swagger-ui.html` | `http://localhost:8081/v3/api-docs` |
-| Product Catalog Service | `http://localhost:8082/swagger-ui.html` | `http://localhost:8082/v3/api-docs` |
-| Shopping Cart Service | `http://localhost:8083/swagger-ui.html` | `http://localhost:8083/v3/api-docs` |
-| Order Service | `http://localhost:8085/swagger-ui.html` | `http://localhost:8085/v3/api-docs` |
-| Payment Service | `http://localhost:8086/swagger-ui.html` | `http://localhost:8086/v3/api-docs` |
-
-Observacoes:
-
-- Para validar a UI do Swagger, prefira acessar diretamente o service na porta dele.
-- O OpenAPI JSON tambem pode ser acessado pelo Gateway:
-  - User Service: `http://localhost:8080/api/user/v3/api-docs`
-  - Product Catalog Service: `http://localhost:8080/api/product-catalog/v3/api-docs`
-- `notification-service` atualmente trabalha por eventos RabbitMQ e nao possui controllers REST implementados.
-- `eureka-service` e `gateway-service` sao servicos de infraestrutura e nao possuem API de negocio documentada por Swagger.
-- O Gateway atual usa `StripPrefix=2`, entao algumas rotas do `user-service` ficam com `/api` duplicado na URL externa, como `/api/user/api/account/logged-user`.
+---
 
 ## User Service
 
-Rotas via Gateway:
+| Method | Route (via Gateway) | Auth | Description |
+|--------|---------------------|------|-------------|
+| POST | `/api/user/sign-up` | Public | Register user, returns JWT |
+| POST | `/api/user/sign-in` | Basic Auth | Login, returns JWT |
+| POST | `/api/user/refresh-token` | Bearer refresh token | Generate new access token |
+| GET | `/api/user/api/account/logged-user` | Bearer access token | Get authenticated user |
+| PUT | `/api/user/api/account/update_profile` | Bearer access token | Update user profile |
 
-| Metodo | Rota | Autenticacao | Descricao |
-| --- | --- | --- | --- |
-| `POST` | `/api/user/sign-up` | Publica | Cadastra usuario e retorna token JWT |
-| `POST` | `/api/user/sign-in` | Basic Auth | Autentica usuario e retorna token JWT |
-| `POST` | `/api/user/refresh-token` | Bearer refresh token | Gera novo access token |
-| `GET` | `/api/user/api/account/logged-user` | Bearer access token | Retorna usuario autenticado |
-| `PUT` | `/api/user/api/account/update_profile` | Bearer access token | Atualiza perfil do usuario autenticado |
-
-Rotas diretas no service:
-
-| Metodo | Rota direta |
-| --- | --- |
-| `POST` | `http://localhost:8081/sign-up` |
-| `POST` | `http://localhost:8081/sign-in` |
-| `POST` | `http://localhost:8081/refresh-token` |
-| `GET` | `http://localhost:8081/api/account/logged-user` |
-| `PUT` | `http://localhost:8081/api/account/update_profile` |
-
-### Exemplo: Sign Up
-
-```http
-POST http://localhost:8080/api/user/sign-up
-Content-Type: application/json
-```
-
+**Sign up:**
 ```json
+POST /api/user/sign-up
+Content-Type: application/json
+
 {
   "firstName": "Lucas",
   "lastName": "Silva",
@@ -84,15 +58,12 @@ Content-Type: application/json
 }
 ```
 
-### Exemplo: Update Profile
-
-```http
-PUT http://localhost:8080/api/user/api/account/update_profile
+**Update profile:**
+```json
+PUT /api/user/api/account/update_profile
 Authorization: Bearer <access_token>
 Content-Type: application/json
-```
 
-```json
 {
   "firstName": "Lucas",
   "lastName": "Silva",
@@ -102,182 +73,151 @@ Content-Type: application/json
 }
 ```
 
+---
+
 ## Product Catalog Service
 
 ### Categories
 
-Rotas via Gateway:
-
-| Metodo | Rota | Descricao |
-| --- | --- | --- |
-| `GET` | `/api/product-catalog/categories` | Lista categorias |
-| `GET` | `/api/product-catalog/categories/{id}` | Busca categoria por ID |
-| `POST` | `/api/product-catalog/categories` | Cria categoria |
-| `PUT` | `/api/product-catalog/categories/{id}` | Atualiza categoria |
-| `DELETE` | `/api/product-catalog/categories/{id}` | Remove categoria |
-
-Exemplo de body:
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/product-catalog/categories` | List categories |
+| GET | `/api/product-catalog/categories/{id}` | Get category by ID |
+| POST | `/api/product-catalog/categories` | Create category |
+| PUT | `/api/product-catalog/categories/{id}` | Update category |
+| DELETE | `/api/product-catalog/categories/{id}` | Delete category |
 
 ```json
-{
-  "name": "Eletronicos"
-}
+POST /api/product-catalog/categories
+{ "name": "Electronics" }
 ```
 
 ### Products
 
-Rotas via Gateway:
-
-| Metodo | Rota | Descricao |
-| --- | --- | --- |
-| `GET` | `/api/product-catalog/products` | Lista produtos |
-| `GET` | `/api/product-catalog/products/{id}` | Busca produto por ID |
-| `GET` | `/api/product-catalog/products/category/{categoryId}` | Lista produtos por categoria |
-| `POST` | `/api/product-catalog/products` | Cria produto |
-| `PUT` | `/api/product-catalog/products/{id}` | Atualiza produto |
-| `DELETE` | `/api/product-catalog/products/{id}` | Remove produto |
-
-Exemplo de body:
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/product-catalog/products` | List products |
+| GET | `/api/product-catalog/products/{id}` | Get product by ID |
+| GET | `/api/product-catalog/products/category/{categoryId}` | List products by category |
+| POST | `/api/product-catalog/products` | Create product |
+| PUT | `/api/product-catalog/products/{id}` | Update product |
+| DELETE | `/api/product-catalog/products/{id}` | Delete product |
 
 ```json
+POST /api/product-catalog/products
 {
-  "name": "Notebook Gamer",
-  "description": "Notebook com placa de video dedicada",
+  "name": "Notebook",
+  "description": "Gaming notebook",
   "price": 5999.90,
-  "categoryId": "00000000-0000-0000-0000-000000000000"
+  "categoryId": "<category-uuid>"
 }
 ```
 
-### Inventories
+### Inventory
 
-Rotas via Gateway:
-
-| Metodo | Rota | Descricao |
-| --- | --- | --- |
-| `GET` | `/api/product-catalog/inventories` | Lista inventarios |
-| `GET` | `/api/product-catalog/inventories/product/{productId}` | Busca inventario por produto |
-| `POST` | `/api/product-catalog/inventories` | Cria inventario |
-| `PUT` | `/api/product-catalog/inventories/product/{productId}` | Atualiza inventario por produto |
-| `PATCH` | `/api/product-catalog/inventories/product/{productId}/add?qty={qty}` | Adiciona quantidade ao estoque |
-| `PATCH` | `/api/product-catalog/inventories/product/{productId}/remove?qty={qty}` | Remove quantidade do estoque |
-
-Exemplo de body:
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/product-catalog/inventories` | List inventories |
+| GET | `/api/product-catalog/inventories/product/{productId}` | Get inventory by product |
+| POST | `/api/product-catalog/inventories` | Create inventory |
+| PUT | `/api/product-catalog/inventories/product/{productId}` | Update inventory |
+| PATCH | `/api/product-catalog/inventories/product/{productId}/add?qty={n}` | Add stock |
+| PATCH | `/api/product-catalog/inventories/product/{productId}/remove?qty={n}` | Remove stock |
 
 ```json
-{
-  "productId": "00000000-0000-0000-0000-000000000000",
-  "quantity": 10
-}
+POST /api/product-catalog/inventories
+{ "productId": "<product-uuid>", "quantity": 10 }
 ```
 
-## Notification Service
-
-O `notification-service` nao possui rotas REST de negocio no estado atual. Ele consome eventos RabbitMQ:
-
-- evento de cadastro de usuario;
-- evento de confirmacao de pedido.
-
-Console RabbitMQ:
-
-```text
-http://localhost:15672
-```
-
-Credenciais locais no Docker Compose:
-
-```text
-usuario: guest
-senha: guest
-```
+---
 
 ## Shopping Cart Service
 
-Rotas via Gateway:
-
-| Metodo | Rota | Descricao |
-| --- | --- | --- |
-| `GET` | `/api/carts/user/{userId}` | Busca ou cria carrinho do usuario |
-| `POST` | `/api/carts/user/{userId}/items` | Adiciona item ao carrinho |
-| `PUT` | `/api/carts/user/{userId}/items/{itemId}` | Atualiza quantidade do item |
-| `DELETE` | `/api/carts/user/{userId}/items/{itemId}` | Remove item do carrinho |
-| `DELETE` | `/api/carts/user/{userId}/clear` | Limpa carrinho |
-| `DELETE` | `/api/carts/user/{userId}` | Remove carrinho |
-
-Exemplo de body:
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/carts/user/{userId}` | Get or create cart for user |
+| POST | `/api/carts/user/{userId}/items` | Add item to cart |
+| PUT | `/api/carts/user/{userId}/items/{itemId}` | Update item quantity |
+| DELETE | `/api/carts/user/{userId}/items/{itemId}` | Remove item from cart |
+| DELETE | `/api/carts/user/{userId}/clear` | Clear cart |
+| DELETE | `/api/carts/user/{userId}` | Delete cart |
 
 ```json
-{
-  "productId": "00000000-0000-0000-0000-000000000000",
-  "quantity": 2,
-  "price": 199.90
-}
+POST /api/carts/user/{userId}/items
+{ "productId": "<product-uuid>", "quantity": 2, "price": 199.90 }
+
+PUT /api/carts/user/{userId}/items/{itemId}
+{ "quantity": 3 }
 ```
+
+---
 
 ## Order Service
 
-Rotas via Gateway:
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/orders` | Create order manually |
+| POST | `/api/orders/from-cart` | Create order from cart (deducts stock) |
+| GET | `/api/orders/{orderId}` | Get order by ID |
+| GET | `/api/orders/user/{userId}` | List orders by user |
+| GET | `/api/orders/status/{status}` | List orders by status |
+| PATCH | `/api/orders/{orderId}/status` | Update order status |
+| POST | `/api/orders/{orderId}/cancel` | Cancel order |
+| GET | `/api/orders/{orderId}/history` | Get status history |
+| PATCH | `/api/orders/{orderId}/payment/{paymentId}` | Associate payment to order |
 
-| Metodo | Rota | Descricao |
-| --- | --- | --- |
-| `POST` | `/api/orders` | Cria pedido |
-| `POST` | `/api/orders/from-cart` | Cria pedido a partir do carrinho e baixa estoque |
-| `GET` | `/api/orders/{orderId}` | Busca pedido por ID |
-| `GET` | `/api/orders/user/{userId}` | Lista pedidos por usuario |
-| `GET` | `/api/orders/status/{status}` | Lista pedidos por status |
-| `PATCH` | `/api/orders/{orderId}/status` | Atualiza status do pedido |
-| `POST` | `/api/orders/{orderId}/cancel` | Cancela pedido |
-| `GET` | `/api/orders/{orderId}/history` | Lista historico de status |
-| `PATCH` | `/api/orders/{orderId}/payment/{paymentId}` | Associa pagamento ao pedido |
-
-Exemplo de body:
-
+**Create order from cart:**
 ```json
+POST /api/orders/from-cart
 {
-  "userId": "00000000-0000-0000-0000-000000000000",
-  "userEmail": "cliente@example.com",
-  "shippingAddress": "Rua Exemplo, 123",
-  "items": [
-    {
-      "productId": "00000000-0000-0000-0000-000000000001",
-      "quantity": 1,
-      "unitPrice": 199.90
-    }
-  ]
-}
-```
-
-Exemplo de pedido a partir do carrinho:
-
-```json
-{
-  "userId": "00000000-0000-0000-0000-000000000000",
-  "userEmail": "cliente@example.com",
+  "userId": "<user-uuid>",
+  "userEmail": "user@example.com",
   "shippingAddress": "Rua Exemplo, 123"
 }
 ```
 
+**Create order manually:**
+```json
+POST /api/orders
+{
+  "userId": "<user-uuid>",
+  "userEmail": "user@example.com",
+  "shippingAddress": "Rua Exemplo, 123",
+  "items": [
+    { "productId": "<product-uuid>", "quantity": 1, "unitPrice": 199.90 }
+  ]
+}
+```
+
+**Update status:**
+```json
+PATCH /api/orders/{orderId}/status
+{ "status": "SHIPPED", "notes": "Shipped via Correios" }
+```
+
+**Order statuses:** `CREATED`, `WAITING_PAYMENT`, `PAYMENT_CONFIRMED`, `PAID`, `FAILED`, `CANCELLED`, `SHIPPED`.
+
+---
+
 ## Payment Service
 
-Rotas via Gateway:
-
-| Metodo | Rota | Descricao |
-| --- | --- | --- |
-| `POST` | `/api/payments` | Cria pagamento |
-| `POST` | `/api/payments/{paymentId}/process` | Processa pagamento simulado |
-| `POST` | `/api/payments/{paymentId}/confirm` | Confirma pagamento |
-| `POST` | `/api/payments/{paymentId}/fail` | Rejeita pagamento |
-| `POST` | `/api/payments/{paymentId}/refund` | Reembolsa pagamento |
-| `GET` | `/api/payments/{paymentId}` | Busca pagamento por ID |
-| `GET` | `/api/payments/order/{orderId}` | Busca pagamento por pedido |
-| `GET` | `/api/payments/user/{userId}` | Lista pagamentos por usuario |
-| `GET` | `/api/payments/{paymentId}/transactions` | Lista transacoes |
-
-Exemplo de body:
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/payments` | Create payment |
+| POST | `/api/payments/{paymentId}/process` | Process payment (simulated) |
+| POST | `/api/payments/{paymentId}/confirm` | Confirm payment |
+| POST | `/api/payments/{paymentId}/fail` | Fail payment |
+| POST | `/api/payments/{paymentId}/refund` | Refund payment |
+| GET | `/api/payments/{paymentId}` | Get payment by ID |
+| GET | `/api/payments/order/{orderId}` | Get payment by order |
+| GET | `/api/payments/user/{userId}` | List payments by user |
+| GET | `/api/payments/{paymentId}/transactions` | List transactions |
 
 ```json
+POST /api/payments
 {
-  "orderId": "00000000-0000-0000-0000-000000000000",
-  "userId": "00000000-0000-0000-0000-000000000001",
+  "orderId": "<order-uuid>",
+  "userId": "<user-uuid>",
   "amount": 199.90,
   "currency": "BRL",
   "paymentMethod": "PIX",
@@ -285,29 +225,23 @@ Exemplo de body:
 }
 ```
 
-## Ordem Recomendada Para Testar no Postman
+**Payment methods:** `CREDIT_CARD`, `DEBIT_CARD`, `PIX`, `BANK_TRANSFER`.  
+**Providers:** `INTERNAL`, `STRIPE`, `PAYPAL`.  
+**Payment statuses:** `PENDING`, `PROCESSING`, `SUCCESS`, `FAILED`, `REFUNDED`.
 
-1. `POST /api/user/sign-up`.
-2. Copiar ou deixar a collection salvar o `access_token`.
-3. `GET /api/user/api/account/logged-user`.
-4. `POST /api/product-catalog/categories`.
-5. `POST /api/product-catalog/products`.
-6. `POST /api/product-catalog/inventories`.
-7. Testar `PATCH add/remove` no inventario.
-8. `POST /api/carts/user/{userId}/items`.
-9. `POST /api/orders/from-cart`.
-10. `POST /api/payments`.
-11. `POST /api/payments/{paymentId}/confirm`.
+---
 
-## Fluxo MVP de Estudo
+## Full MVP flow (recommended test order)
 
-1. O usuario se cadastra em `user-service`.
-2. `user-service` publica `user.registration` no RabbitMQ.
-3. `notification-service` consome o evento e registra/envia a mensagem.
-4. O catalogo recebe produto e estoque.
-5. O carrinho recebe itens.
-6. `order-service` cria pedido a partir do carrinho.
-7. Durante a criacao do pedido, `order-service` chama o catalogo para baixar estoque.
-8. `payment-service` cria e confirma o pagamento simulado.
-9. `order-service` consome `payment.success`, atualiza o pedido para `PAYMENT_CONFIRMED` e publica `order.confirmation`.
-10. `notification-service` consome `order.confirmation`.
+1. `POST /api/user/sign-up` — register user.
+2. `POST /api/product-catalog/categories` — create category.
+3. `POST /api/product-catalog/products` — create product.
+4. `POST /api/product-catalog/inventories` — create inventory with stock.
+5. `GET /api/carts/user/{userId}` — get or create cart.
+6. `POST /api/carts/user/{userId}/items` — add item.
+7. `POST /api/orders/from-cart` — create order (deducts stock, waits for payment).
+8. `POST /api/payments` — create payment for the order.
+9. `POST /api/payments/{paymentId}/confirm` — confirm payment.
+   - `payment-service` publishes `payment.success`.
+   - `order-service` consumes it, sets order to `PAYMENT_CONFIRMED`, publishes `order.confirmation`.
+   - `notification-service` consumes `order.confirmation` and notifies user.

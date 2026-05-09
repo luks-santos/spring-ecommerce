@@ -1,43 +1,78 @@
-# Visao geral
+# Overview
 
-Este projeto implementa uma plataforma de e-commerce baseada em microservicos,
-seguindo o desafio `Scalable E-Commerce Platform` do roadmap.sh.
+E-commerce platform built as microservices, based on the [Scalable E-Commerce Platform](https://roadmap.sh/projects/scalable-ecommerce-platform) challenge from roadmap.sh.
 
-## Ideia principal
+## Architecture
 
-Uma loja online completa precisa lidar com usuarios, catalogo, estoque, carrinho,
-pedidos, pagamento e notificacoes. Em uma arquitetura monolitica, tudo isso fica
-no mesmo deploy e no mesmo limite de mudanca. Neste projeto, cada capacidade
-principal deve evoluir como um microservico independente.
+Eight independent services communicating via HTTP (synchronous queries) and RabbitMQ (async events):
 
-## Componentes atuais
+```
+Client
+  │
+  ▼
+Gateway (8080)
+  ├── /api/user/**             → user-service (8081)
+  ├── /api/product-catalog/**  → product-catalog-service (8082)
+  ├── /api/carts/**            → shopping-cart-service (8083)
+  ├── /api/orders/**           → order-service (8085)
+  └── /api/payments/**         → payment-service (8086)
 
-- `gateway-service`: ponto de entrada HTTP da plataforma.
-- `eureka-service`: registro e descoberta de servicos.
-- `user-service`: cadastro, login, JWT, refresh token e perfil de usuario.
-- `product-catalog-service`: categorias, produtos e inventario.
-- `shopping-cart-service`: carrinho de compras por usuario.
-- `order-service`: criacao de pedidos manualmente ou a partir do carrinho.
-- `payment-service`: registro e confirmacao simulada de pagamentos.
-- `notification-service`: notificacoes assincronas consumindo eventos RabbitMQ.
-- `postgres-ecommerce`: banco PostgreSQL local com bancos separados por servico.
-- `rabbitmq`: broker para comunicacao assincrona por eventos.
+Eureka (8761) ← all services register here
 
-## Componentes planejados
+RabbitMQ
+  ├── user.registration        → notification-service
+  ├── order.confirmation       → notification-service
+  ├── payment.success          → order-service
+  ├── payment.failed           → order-service
+  └── payment.refunded         → order-service
+```
 
-- Endurecimento de autenticacao e autorizacao entre gateway e servicos.
-- Observabilidade: logs centralizados, metricas e tracing distribuido.
-- Deploy: empacotamento e execucao em ambiente mais proximo de producao.
+## Services
 
-## Decisao de banco
+| Service | Port | Database | Role |
+|---------|------|----------|------|
+| eureka-service | 8761 | - | Service registry |
+| gateway-service | 8080 | - | Single entry point for clients |
+| user-service | 8081 | user_db | Auth, registration, JWT/RSA |
+| product-catalog-service | 8082 | product_db | Products, categories, inventory |
+| shopping-cart-service | 8083 | cart_db | Cart per user |
+| notification-service | 8084 | H2 in-memory | Email/console via RabbitMQ |
+| order-service | 8085 | order_db | Orders, status lifecycle |
+| payment-service | 8086 | payment_db | Simulated payments |
 
-O projeto foi migrado de MySQL para PostgreSQL. A partir desta etapa:
+## Stack
 
-- Compose local usa `postgres:16-alpine`.
-- `user-service` usa o banco `user_db`.
-- `product-catalog-service` usa o banco `product_db`.
-- `shopping-cart-service` usa o banco `cart_db`.
-- `order-service` usa o banco `order_db`.
-- `payment-service` usa o banco `payment_db`.
-- As migrations Flyway usam UUID nativo do PostgreSQL.
-- Cada microservico deve continuar dono do proprio banco.
+| Component | Technology |
+|-----------|-----------|
+| Language | Java 25 |
+| Framework | Spring Boot 3.5.14 |
+| Cloud | Spring Cloud 2025.0.2 |
+| Database | PostgreSQL 16 |
+| Messaging | RabbitMQ |
+| Service discovery | Netflix Eureka |
+| API Gateway | Spring Cloud Gateway |
+| Auth | Spring Security + JWT/RSA (NimbusDS) |
+| ORM | Hibernate/JPA + Flyway |
+| Tests | JUnit 5 + Mockito |
+| Container | Docker + Docker Compose |
+| CI | GitHub Actions |
+| API docs | Springdoc-OpenAPI |
+
+## Inter-service communication
+
+**REST (synchronous):**
+- `order-service` calls `shopping-cart-service` to fetch cart items when creating an order from cart.
+- `order-service` calls `product-catalog-service` to deduct inventory per item.
+
+**RabbitMQ (asynchronous):**
+- `user-service` → `notification-service`: welcome notification on registration.
+- `payment-service` → `order-service`: payment result updates order status.
+- `order-service` → `notification-service`: order confirmation email after payment.
+
+## Known limitations
+
+- Gateway does not validate JWT on private routes.
+- Cart, order, and payment accept `userId` from the request body instead of deriving it from the token.
+- RabbitMQ events lack `eventId` and `correlationId` for idempotency.
+- No stock compensation on payment failure after inventory was already deducted.
+- No observability (Actuator, Prometheus, Grafana).

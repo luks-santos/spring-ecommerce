@@ -1,39 +1,49 @@
-# Roadmap do projeto
+# Roadmap
 
-## Pronto ou parcialmente pronto
+## Implemented (MVP complete)
 
-- Service discovery com `eureka-service`.
-- API Gateway com rotas para usuarios, catalogo, carrinho, pedidos e pagamentos.
-- `user-service` com autenticacao JWT/RSA, cadastro, login e refresh token.
-- `user-service` publicando evento de cadastro de usuario para RabbitMQ.
-- `product-catalog-service` com categorias, produtos e inventario.
-- `shopping-cart-service` com persistencia de carrinho por usuario.
-- `order-service` com criacao de pedido manual e criacao a partir do carrinho.
-- `order-service` consumindo eventos de pagamento e publicando confirmacao de
-  pedido.
-- `payment-service` com fluxo simulado de criacao e confirmacao de pagamento.
-- `notification-service` consumindo eventos RabbitMQ e renderizando emails.
-- Docker Compose para ambiente local.
-- PostgreSQL local em substituicao ao MySQL.
-- CI por servico para a base atual do MVP.
+- Service discovery with `eureka-service`.
+- API Gateway routing users, catalog, cart, orders, and payments.
+- `user-service`: registration, login, JWT/RSA, refresh token, publishes `user.registration` event.
+- `product-catalog-service`: categories, products, and inventory CRUD.
+- `shopping-cart-service`: cart persistence per user, item management.
+- `order-service`: manual order creation and creation from cart, inventory deduction via REST, consumes payment events, publishes `order.confirmation`.
+- `payment-service`: simulated payment flow, publishes `payment.success`, `payment.failed`, `payment.refunded`.
+- `notification-service`: consumes `user.registration` and `order.confirmation`, sends email or logs to console.
+- Docker Compose for local environment.
+- PostgreSQL with one database per service.
+- CI per service via GitHub Actions.
 
-## Lacunas tecnicas
+## Pending
 
-- Falta endurecer autenticacao e autorizacao entre gateway, clientes e servicos.
-- Falta remover confianca em `userId` enviado pelo cliente em fluxos privados.
-- Falta padronizar propagacao de identidade em chamadas REST internas.
-- Falta idempotencia e estrategia de compensacao nos fluxos de pedido, estoque e
-  pagamento.
-- Falta ampliar testes de integracao entre servicos.
-- Falta observabilidade: logs centralizados, metricas e tracing.
-- Falta estrategia de deploy mais proxima de producao.
+**Security hardening** (see `14-debito-autenticacao.md`):
+- Gateway validates JWT on all private routes.
+- Services derive user identity from the token, not from the request body.
+- Role-based authorization (admin vs. regular user).
 
-## Ordem recomendada
+**Reliability:**
+- Idempotent RabbitMQ consumers with `eventId` and `correlationId`.
+- Stock compensation when payment or order fails after inventory was already deducted.
+- Idempotency on payment creation endpoints.
 
-1. Validar a stack completa com Docker Compose em ambiente com Java 25 e Docker.
-2. Endurecer autenticacao e autorizacao, conforme `14-debito-autenticacao.md`.
-3. Adicionar testes de integracao cobrindo carrinho, pedido, pagamento, estoque
-   e notificacao.
-4. Implementar idempotencia e compensacao nos fluxos de pedido e pagamento.
-5. Adicionar observabilidade: logs centralizados, metricas e tracing.
-6. Evoluir deploy para ambiente mais proximo de producao.
+**Integration tests:**
+- Testcontainers-based tests covering the full cart → order → payment → stock → notification flow.
+- Security scenario tests (missing token, invalid token, cross-user access).
+
+**Observability:**
+- Spring Boot Actuator on all services.
+- Health checks in Docker Compose.
+- Structured logs (JSON).
+- Prometheus and Grafana via Docker Compose.
+
+**Production deploy:**
+- Kubernetes manifests or Docker Swarm.
+- Secrets management.
+
+## Recommended order
+
+1. Security hardening.
+2. Reliability: idempotency and compensation.
+3. Integration tests with Testcontainers.
+4. Observability: Actuator, Prometheus, Grafana.
+5. Production deploy.

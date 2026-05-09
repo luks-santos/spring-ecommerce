@@ -1,78 +1,68 @@
-# Como rodar local
+# Running locally
 
-## Pre-requisitos
+## Prerequisites
 
-- Docker e Docker Compose.
-- Java 25 para os servicos Java/Spring Boot.
-- Java 25 se for rodar `notification-service` fora do Docker.
-- Maven ou os wrappers `mvnw`/`mvnw.cmd` de cada servico.
+- Docker and Docker Compose
+- Java 25 (only needed to run services outside Docker)
+- Maven or the `mvnw`/`mvnw.cmd` wrappers inside each service directory
 
-## Subir a stack
-
-Na raiz do projeto:
+## Start the full stack
 
 ```powershell
 cd backend
 docker compose up --build
 ```
 
-Servicos esperados:
+## Access points
 
-- PostgreSQL: `localhost:5433`
-- Eureka: `http://localhost:8761`
-- Gateway: `http://localhost:8080`
-- User Service: `http://localhost:8081`
-- Product Catalog Service: `http://localhost:8082`
-- RabbitMQ Management: `http://localhost:15672`
-- Notification Service: `http://localhost:8084`
+| Service | URL |
+|---------|-----|
+| Gateway | http://localhost:8080 |
+| Eureka Dashboard | http://localhost:8761 |
+| RabbitMQ Management | http://localhost:15672 (guest/guest) |
+| User Service | http://localhost:8081 |
+| Product Catalog Service | http://localhost:8082 |
+| Shopping Cart Service | http://localhost:8083 |
+| Notification Service | http://localhost:8084 |
+| Order Service | http://localhost:8085 |
+| Payment Service | http://localhost:8086 |
+| PostgreSQL | localhost:5433 |
 
-## Variaveis de ambiente
+## Environment variables
 
-O `docker-compose.yml` aceita estas variaveis, com defaults para desenvolvimento:
+The `docker-compose.yml` accepts these variables with development defaults:
 
 ```text
 POSTGRES_USER=ecommerce
 POSTGRES_PASSWORD=ecommerce
-POSTGRES_DB=ecommerce
-POSTGRES_DATABASE_USER=user_db
-POSTGRES_DATABASE_PRODUCT=product_db
 ```
 
-Os servicos recebem:
+Databases created automatically via `init-postgres/`: `user_db`, `product_db`, `cart_db`, `order_db`, `payment_db`.
 
-```text
-DATABASE_URL=jdbc:postgresql://postgres-ecommerce:5432/<database>
-DB_DRIVER=org.postgresql.Driver
-DB_USER=<usuario>
-DB_PASSWORD=<senha>
-```
+## Run tests
 
-## Rodar testes
-
-Os testes atuais usam H2 em memoria e nao exigem PostgreSQL.
+Tests use H2 in-memory and do not require PostgreSQL or RabbitMQ.
 
 ```powershell
-cd backend/user-service
+cd backend/<service-name>
 .\mvnw.cmd test
 ```
 
-```powershell
-cd backend/product-catalog-service
-.\mvnw.cmd test
-```
+## Swagger UI
 
-```powershell
-cd backend/gateway-service
-.\mvnw.cmd test
-```
+Available per service after the stack is running:
 
-```powershell
-cd backend/eureka-service
-.\mvnw.cmd test
-```
+| Service | URL |
+|---------|-----|
+| User Service | http://localhost:8081/swagger-ui.html |
+| Product Catalog | http://localhost:8082/swagger-ui.html |
+| Shopping Cart | http://localhost:8083/swagger-ui.html |
+| Order Service | http://localhost:8085/swagger-ui.html |
+| Payment Service | http://localhost:8086/swagger-ui.html |
 
-```powershell
-cd backend/notification-service
-.\mvnw.cmd test
-```
+OpenAPI JSON via Gateway:
 
+| Service | URL |
+|---------|-----|
+| User Service | http://localhost:8080/api/user/v3/api-docs |
+| Product Catalog | http://localhost:8080/api/product-catalog/v3/api-docs |

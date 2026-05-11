@@ -1,5 +1,8 @@
 package com.ecommerce.user_service.config.jwt;
 
+import com.ecommerce.user_service.entities.User;
+import com.ecommerce.user_service.repositories.UserRepo;
+import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -13,6 +16,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 public class JwtTokenGenerator {
 
     private final JwtEncoder jwtEncoder;
+    private final UserRepo userRepo;
 
     public String generateAccessToken(Authentication authentication) {
 
@@ -30,11 +35,16 @@ public class JwtTokenGenerator {
         String roles = getRolesOfUser(authentication);
         String permissions = getPermissionsFromRoles(roles);
 
+        User user = userRepo.findByEmail(authentication.getName())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("user_service")
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(15, ChronoUnit.MINUTES))
                 .subject(authentication.getName())
+                .claim("userId", user.getId())
+                .claim("email", user.getEmail())
                 .claim("scope", permissions)
                 .build();
 

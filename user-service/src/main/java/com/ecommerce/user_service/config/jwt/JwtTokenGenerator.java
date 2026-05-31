@@ -34,6 +34,10 @@ public class JwtTokenGenerator {
 
         String roles = getRolesOfUser(authentication);
         String permissions = getPermissionsFromRoles(roles);
+        List<String> roleList = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(authority -> authority.startsWith("ROLE_"))
+                .toList();
 
         User user = userRepo.findByEmail(authentication.getName())
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -45,6 +49,7 @@ public class JwtTokenGenerator {
                 .subject(authentication.getName())
                 .claim("userId", user.getId())
                 .claim("email", user.getEmail())
+                .claim("roles", roleList)
                 .claim("scope", permissions)
                 .build();
 

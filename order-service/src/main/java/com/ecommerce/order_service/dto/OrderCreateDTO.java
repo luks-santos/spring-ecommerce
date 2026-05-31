@@ -3,13 +3,12 @@ package com.ecommerce.order_service.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.UUID;
 
 public record OrderCreateDTO(
-        @NotNull(message = "User ID is required")
+        // Derived from the JWT in the controller, never trusted from the request body
         UUID userId,
 
         String userEmail,

@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -24,63 +26,125 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+    private UUID extractUserId(JwtAuthenticationToken token) {
+        String userId = token.getToken().getClaimAsString("userId");
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token is missing the userId claim");
+        }
+        return UUID.fromString(userId);
+    }
+
+    private boolean isAdmin(JwtAuthenticationToken token) {
+        return token.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    private boolean isUserAuthorizedForPayment(JwtAuthenticationToken token, PaymentResponseDTO payment) {
+        return isAdmin(token) || payment.getUserId().equals(extractUserId(token));
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create payment", description = "Creates a new payment for an order")
-    public PaymentResponseDTO createPayment(@Valid @RequestBody PaymentCreateDTO dto) {
-        return paymentService.createPayment(dto);
+    public PaymentResponseDTO createPayment(
+            JwtAuthenticationToken token,
+            @Valid @RequestBody PaymentCreateDTO dto) {
+        UUID userId = extractUserId(token);
+        PaymentCreateDTO secureDto = new PaymentCreateDTO(dto.orderId(), userId, dto.amount(), dto.currency(), dto.paymentMethod(), dto.provider());
+        return paymentService.createPayment(secureDto);
     }
 
     @PostMapping("/{paymentId}/process")
     @Operation(summary = "Process payment", description = "Processes a pending payment")
-    public ResponseEntity<PaymentResponseDTO> processPayment(@PathVariable UUID paymentId) {
+    public ResponseEntity<?> processPayment(
+            JwtAuthenticationToken token,
+            @PathVariable UUID paymentId) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(paymentService.processPayment(paymentId));
     }
 
     @PostMapping("/{paymentId}/confirm")
     @Operation(summary = "Confirm payment", description = "Confirms a payment as successful")
-    public ResponseEntity<PaymentResponseDTO> confirmPayment(@PathVariable UUID paymentId) {
+    public ResponseEntity<?> confirmPayment(
+            JwtAuthenticationToken token,
+            @PathVariable UUID paymentId) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(paymentService.confirmPayment(paymentId));
     }
 
     @PostMapping("/{paymentId}/fail")
     @Operation(summary = "Fail payment", description = "Marks a payment as failed")
-    public ResponseEntity<PaymentResponseDTO> failPayment(
+    public ResponseEntity<?> failPayment(
+            JwtAuthenticationToken token,
             @PathVariable UUID paymentId,
             @RequestParam(required = false, defaultValue = "Payment processing failed") String reason) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(paymentService.failPayment(paymentId, reason));
     }
 
     @PostMapping("/{paymentId}/refund")
     @Operation(summary = "Refund payment", description = "Refunds a successful payment")
-    public ResponseEntity<PaymentResponseDTO> refundPayment(
+    public ResponseEntity<?> refundPayment(
+            JwtAuthenticationToken token,
             @PathVariable UUID paymentId,
             @RequestParam BigDecimal amount,
             @RequestParam(required = false, defaultValue = "Refund requested") String reason) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(paymentService.refundPayment(paymentId, amount, reason));
     }
 
     @GetMapping("/{paymentId}")
     @Operation(summary = "Get payment by ID", description = "Retrieves payment details by ID")
-    public ResponseEntity<PaymentResponseDTO> getPaymentById(@PathVariable UUID paymentId) {
-        return ResponseEntity.ok(paymentService.getPaymentById(paymentId));
+    public ResponseEntity<?> getPaymentById(
+            JwtAuthenticationToken token,
+            @PathVariable UUID paymentId) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(payment);
     }
 
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Get payment by order", description = "Retrieves payment for a specific order")
-    public ResponseEntity<PaymentResponseDTO> getPaymentByOrderId(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(paymentService.getPaymentByOrderId(orderId));
+    public ResponseEntity<?> getPaymentByOrderId(
+            JwtAuthenticationToken token,
+            @PathVariable UUID orderId) {
+        PaymentResponseDTO payment = paymentService.getPaymentByOrderId(orderId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(payment);
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Get payments by user", description = "Retrieves all payments for a specific user")
-    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByUserId(@PathVariable UUID userId) {
+    @GetMapping("/my-payments")
+    @Operation(summary = "Get payments by user", description = "Retrieves all payments for the authenticated user")
+    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByUserId(JwtAuthenticationToken token) {
+        UUID userId = extractUserId(token);
         return ResponseEntity.ok(paymentService.getPaymentsByUserId(userId));
     }
 
     @GetMapping("/{paymentId}/transactions")
     @Operation(summary = "Get payment transactions", description = "Retrieves transaction history for a payment")
-    public ResponseEntity<List<PaymentTransaction>> getPaymentTransactions(@PathVariable UUID paymentId) {
+    public ResponseEntity<?> getPaymentTransactions(
+            JwtAuthenticationToken token,
+            @PathVariable UUID paymentId) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(paymentService.getPaymentTransactions(paymentId));
     }
 }

@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import java.util.UUID;
 
 @RestController
@@ -22,50 +24,64 @@ public class CartController {
 
     private final CartService cartService;
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Get cart by user ID", description = "Retrieves the shopping cart for a specific user")
-    public ResponseEntity<CartResponseDTO> getCartByUserId(@PathVariable UUID userId) {
+    private UUID extractUserId(JwtAuthenticationToken token) {
+        String userId = token.getToken().getClaimAsString("userId");
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token is missing the userId claim");
+        }
+        return UUID.fromString(userId);
+    }
+
+    @GetMapping
+    @Operation(summary = "Get current user's cart", description = "Retrieves the shopping cart for the authenticated user")
+    public ResponseEntity<CartResponseDTO> getCartByUserId(JwtAuthenticationToken token) {
+        UUID userId = extractUserId(token);
         return ResponseEntity.ok(cartService.getOrCreateCart(userId));
     }
 
-    @PostMapping("/user/{userId}/items")
+    @PostMapping("/items")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Add item to cart", description = "Adds a new item to the user's cart or updates quantity if already exists")
     public CartResponseDTO addItem(
-            @PathVariable UUID userId,
+            JwtAuthenticationToken token,
             @Valid @RequestBody CartItemCreateDTO dto) {
+        UUID userId = extractUserId(token);
         return cartService.addItem(userId, dto);
     }
 
-    @PutMapping("/user/{userId}/items/{itemId}")
+    @PutMapping("/items/{itemId}")
     @Operation(summary = "Update item quantity", description = "Updates the quantity of a specific item in the cart")
     public ResponseEntity<CartResponseDTO> updateItemQuantity(
-            @PathVariable UUID userId,
+            JwtAuthenticationToken token,
             @PathVariable UUID itemId,
             @Valid @RequestBody CartItemUpdateDTO dto) {
+        UUID userId = extractUserId(token);
         return ResponseEntity.ok(cartService.updateItemQuantity(userId, itemId, dto));
     }
 
-    @DeleteMapping("/user/{userId}/items/{itemId}")
+    @DeleteMapping("/items/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Remove item from cart", description = "Removes a specific item from the user's cart")
     public void removeItem(
-            @PathVariable UUID userId,
+            JwtAuthenticationToken token,
             @PathVariable UUID itemId) {
+        UUID userId = extractUserId(token);
         cartService.removeItem(userId, itemId);
     }
 
-    @DeleteMapping("/user/{userId}/clear")
+    @DeleteMapping("/clear")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Clear cart", description = "Removes all items from the user's cart")
-    public void clearCart(@PathVariable UUID userId) {
+    public void clearCart(JwtAuthenticationToken token) {
+        UUID userId = extractUserId(token);
         cartService.clearCart(userId);
     }
 
-    @DeleteMapping("/user/{userId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Delete cart", description = "Deletes the entire cart for a user")
-    public void deleteCart(@PathVariable UUID userId) {
+    @Operation(summary = "Delete cart", description = "Deletes the entire cart for the authenticated user")
+    public void deleteCart(JwtAuthenticationToken token) {
+        UUID userId = extractUserId(token);
         cartService.deleteCart(userId);
     }
 }

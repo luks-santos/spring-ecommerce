@@ -12,7 +12,7 @@ public record PaymentCreateDTO(
         @NotNull(message = "Order ID is required")
         UUID orderId,
 
-        @NotNull(message = "User ID is required")
+        // Derived from the JWT in the controller, never trusted from the request body
         UUID userId,
 
         @NotNull(message = "Amount is required")

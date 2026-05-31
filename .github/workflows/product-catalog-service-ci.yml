@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/product-catalog-service/**'
+      - 'product-catalog-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/product-catalog-service/**'
+      - 'product-catalog-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependências
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/product-catalog-service
+        working-directory: product-catalog-service
 
       - name: Executar testes unitários
         run: mvn test
-        working-directory: backend/product-catalog-service
+        working-directory: product-catalog-service

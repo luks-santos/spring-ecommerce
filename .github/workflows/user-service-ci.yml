@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/user-service/**' 
+      - 'user-service/**' 
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/user-service/**'
+      - 'user-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependências
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/user-service 
+        working-directory: user-service 
 
       - name: Executar testes unitários
         run: mvn test
-        working-directory: backend/user-service  
+        working-directory: user-service  

@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/shopping-cart-service/**'
+      - 'shopping-cart-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/shopping-cart-service/**'
+      - 'shopping-cart-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependencias
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/shopping-cart-service
+        working-directory: shopping-cart-service
 
       - name: Executar testes unitarios
         run: mvn test
-        working-directory: backend/shopping-cart-service
+        working-directory: shopping-cart-service

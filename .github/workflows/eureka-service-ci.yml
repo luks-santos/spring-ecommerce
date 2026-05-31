@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/eureka-service/**'
+      - 'eureka-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/eureka-service/**'
+      - 'eureka-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependencias
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/eureka-service
+        working-directory: eureka-service
 
       - name: Executar testes unitarios
         run: mvn test
-        working-directory: backend/eureka-service
+        working-directory: eureka-service

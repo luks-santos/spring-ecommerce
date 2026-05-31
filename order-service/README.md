@@ -1,126 +1,58 @@
 # Order Service
 
-Manages the order lifecycle. Creates orders manually or from a cart, deducts inventory via REST, and reacts to payment events from RabbitMQ.
+Owns the order lifecycle. Builds orders (manually or from a cart), coordinates with cart and catalog over REST, and reacts to payment events from RabbitMQ.
+
+> Part of the [Scalable E-Commerce Platform](../README.md) study project.
 
 ## Stack
 
 - Java 25, Spring Boot 3.5.14
+- Spring Security OAuth2 Resource Server (JWT)
 - Spring Data JPA, PostgreSQL 16, Flyway
 - Spring AMQP (RabbitMQ)
 - Spring Cloud Netflix Eureka Client
-- Springdoc-OpenAPI
+- springdoc-openapi
 
 ## Port
 
 `8085` — database: `order_db`
 
-## API
+## What to study here
 
-### Via Gateway (prefix: `/api/orders`)
+Order-service is the busiest node in the system and the best place to study how a request
+that spans several services is **orchestrated** — and where the hard problems live.
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| POST | `/api/orders` | Create order manually |
-| POST | `/api/orders/from-cart` | Create order from cart |
-| GET | `/api/orders/{orderId}` | Get order by ID |
-| GET | `/api/orders/user/{userId}` | List orders by user |
-| GET | `/api/orders/status/{status}` | List orders by status |
-| PATCH | `/api/orders/{orderId}/status` | Update order status |
-| POST | `/api/orders/{orderId}/cancel` | Cancel order |
-| GET | `/api/orders/{orderId}/history` | Get status history |
-| PATCH | `/api/orders/{orderId}/payment/{paymentId}` | Associate payment to order |
+**Synchronous orchestration.** Creating an order from a cart fans out over REST: it reads
+the cart, then deducts inventory in the catalog per item, then persists the order. This
+shows the upside (simple, immediate) and the downside (it couples availability — if a
+downstream call fails midway, you can be left in a partial state) of synchronous
+choreography.
 
-**Create order from cart:**
-```json
-POST /api/orders/from-cart
-{
-  "userId": "<user-uuid>",
-  "userEmail": "user@example.com",
-  "shippingAddress": "123 Main St"
-}
-```
+**Event-driven status updates + idempotency.** The order's status is driven by payment
+events (`payment.success` / `failed` / `refunded`) consumed from RabbitMQ. The lesson here
+is **idempotency**: RabbitMQ delivers *at least once*, so the same event can arrive twice.
+Each handled `eventId` is recorded in a `processed_events` table, and the id is saved
+**only after** the business logic succeeds — so a redelivery is skipped, but a mid-failure
+can still be retried. Read `PaymentEventConsumer` and its test to see this concretely.
 
-**Create order manually:**
-```json
-POST /api/orders
-{
-  "userId": "<user-uuid>",
-  "userEmail": "user@example.com",
-  "shippingAddress": "123 Main St",
-  "items": [
-    { "productId": "<product-uuid>", "quantity": 1, "unitPrice": 99.90 }
-  ]
-}
-```
+**Authorization by ownership.** Like cart, identity comes from the token: a user sees only
+their own orders (`403` otherwise), while admin-only routes (list-by-status, update-status)
+require `ROLE_ADMIN`.
 
-**Update status:**
-```json
-PATCH /api/orders/{orderId}/status
-{ "status": "SHIPPED", "notes": "Shipped via Correios" }
-```
+**Where it is intentionally incomplete.** Two gaps are worth studying as exercises, not
+bugs to hide: stock is **not** compensated if a payment fails after inventory was already
+deducted (issue #8, classic saga territory), and the from-cart REST call still targets a
+cart route that no longer exists (issue #14). They make the trade-offs of distributed
+transactions tangible.
 
-## Order status flow
-
-```
-CREATED → WAITING_PAYMENT → PAYMENT_CONFIRMED → PAID
-                                              → FAILED
-                         → CANCELLED
-                         → SHIPPED
-```
-
-Available statuses: `CREATED`, `WAITING_PAYMENT`, `PAYMENT_CONFIRMED`, `PAID`, `FAILED`, `CANCELLED`, `SHIPPED`.
-
-## Inter-service communication
-
-**On `POST /api/orders/from-cart`:**
-1. Calls `shopping-cart-service` (REST) to fetch cart items.
-2. For each item, calls `product-catalog-service` (REST) to deduct inventory.
-3. Creates order with status `CREATED`.
-
-**RabbitMQ consumed events:**
-
-| Event | Routing key | Action |
-|-------|------------|--------|
-| payment.success | payment.success | Sets order to `PAYMENT_CONFIRMED`, publishes `order.confirmation` |
-| payment.failed | payment.failed | Sets order to `FAILED` |
-| payment.refunded | payment.refunded | Updates order accordingly |
-
-**RabbitMQ published events:**
-
-| Event | Exchange | Routing key | Trigger |
-|-------|----------|------------|---------|
-| order.confirmation | order.exchange | order.confirmation | Payment confirmed |
-
-## Database schema
-
-| Table | Description |
-|-------|-------------|
-| orders | id (UUID), user_id, user_email, status, total_amount, shipping_address, payment_id, timestamps |
-| order_items | id (UUID), order_id (FK), product_id, quantity, unit_price, subtotal |
-| order_status_history | id (UUID), order_id (FK), status, notes, timestamps |
-
-Migrations in `src/main/resources/db/migration/`.
-
-## Running
-
-```powershell
-# Via Docker Compose (recommended)
-cd backend
-docker compose up order-service
-
-# Locally (requires PostgreSQL, RabbitMQ, Eureka, shopping-cart-service, and product-catalog-service)
-cd backend/order-service
-.\mvnw.cmd spring-boot:run
-```
-
-## Tests
-
-```powershell
-cd backend/order-service
-.\mvnw.cmd test
-```
+It publishes typed events (`order.created`, `order.confirmation`) carrying shared metadata
+(`eventId`/`correlationId`/`producer`/`occurredAt`).
 
 ## Swagger
 
 - UI: http://localhost:8085/swagger-ui.html
 - OpenAPI JSON: http://localhost:8085/v3/api-docs
+
+## Build, run & test
+
+See the [root README](../README.md#running-with-docker) — `docker compose up order-service`, or `cd order-service && ./mvnw test`.

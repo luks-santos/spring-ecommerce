@@ -31,6 +31,9 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET,  "/api/product-catalog/**").permitAll()
                 .pathMatchers(HttpMethod.GET,  "/api/user/v3/api-docs").permitAll()
                 .pathMatchers(HttpMethod.GET,  "/api/product-catalog/v3/api-docs").permitAll()
+                .pathMatchers(HttpMethod.GET,  "/api/carts/v3/api-docs").permitAll()
+                .pathMatchers(HttpMethod.GET,  "/api/orders/v3/api-docs").permitAll()
+                .pathMatchers(HttpMethod.GET,  "/api/payments/v3/api-docs").permitAll()
                 // Admin-only writes on product catalog
                 .pathMatchers(HttpMethod.POST, "/api/product-catalog/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT,  "/api/product-catalog/**").hasRole("ADMIN")

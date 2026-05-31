@@ -1,15 +1,16 @@
 package com.ecommerce.payment_service.controllers;
 
+import com.ecommerce.payment_service.clients.OrderClient;
 import com.ecommerce.payment_service.dto.PaymentCreateDTO;
 import com.ecommerce.payment_service.dto.PaymentResponseDTO;
 import com.ecommerce.payment_service.entities.PaymentTransaction;
+import com.ecommerce.payment_service.exceptions.ForbiddenException;
 import com.ecommerce.payment_service.services.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final OrderClient orderClient;
 
     private UUID extractUserId(JwtAuthenticationToken token) {
         String userId = token.getToken().getClaimAsString("userId");
@@ -43,6 +45,15 @@ public class PaymentController {
         return isAdmin(token) || payment.getUserId().equals(extractUserId(token));
     }
 
+    /** Loads a payment and fails with 403 when the caller is not its owner (or an admin). */
+    private PaymentResponseDTO requireOwnedPayment(JwtAuthenticationToken token, UUID paymentId) {
+        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
+        if (!isUserAuthorizedForPayment(token, payment)) {
+            throw new ForbiddenException("You are not allowed to access this payment");
+        }
+        return payment;
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create payment", description = "Creates a new payment for an order")
@@ -50,101 +61,86 @@ public class PaymentController {
             JwtAuthenticationToken token,
             @Valid @RequestBody PaymentCreateDTO dto) {
         UUID userId = extractUserId(token);
+        // Business rule: a user may only pay for an order they own. The orderId
+        // comes from the request body, so confirm ownership against order-service.
+        if (!orderClient.currentUserCanAccessOrder(dto.orderId(), token.getToken().getTokenValue())) {
+            throw new ForbiddenException("You cannot create a payment for an order that is not yours");
+        }
         PaymentCreateDTO secureDto = new PaymentCreateDTO(dto.orderId(), userId, dto.amount(), dto.currency(), dto.paymentMethod(), dto.provider());
         return paymentService.createPayment(secureDto);
     }
 
     @PostMapping("/{paymentId}/process")
     @Operation(summary = "Process payment", description = "Processes a pending payment")
-    public ResponseEntity<?> processPayment(
+    public PaymentResponseDTO processPayment(
             JwtAuthenticationToken token,
             @PathVariable UUID paymentId) {
-        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
-        if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(paymentService.processPayment(paymentId));
+        requireOwnedPayment(token, paymentId);
+        return paymentService.processPayment(paymentId);
     }
 
     @PostMapping("/{paymentId}/confirm")
     @Operation(summary = "Confirm payment", description = "Confirms a payment as successful")
-    public ResponseEntity<?> confirmPayment(
+    public PaymentResponseDTO confirmPayment(
             JwtAuthenticationToken token,
             @PathVariable UUID paymentId) {
-        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
-        if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(paymentService.confirmPayment(paymentId));
+        requireOwnedPayment(token, paymentId);
+        return paymentService.confirmPayment(paymentId);
     }
 
     @PostMapping("/{paymentId}/fail")
     @Operation(summary = "Fail payment", description = "Marks a payment as failed")
-    public ResponseEntity<?> failPayment(
+    public PaymentResponseDTO failPayment(
             JwtAuthenticationToken token,
             @PathVariable UUID paymentId,
             @RequestParam(required = false, defaultValue = "Payment processing failed") String reason) {
-        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
-        if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(paymentService.failPayment(paymentId, reason));
+        requireOwnedPayment(token, paymentId);
+        return paymentService.failPayment(paymentId, reason);
     }
 
     @PostMapping("/{paymentId}/refund")
     @Operation(summary = "Refund payment", description = "Refunds a successful payment")
-    public ResponseEntity<?> refundPayment(
+    public PaymentResponseDTO refundPayment(
             JwtAuthenticationToken token,
             @PathVariable UUID paymentId,
             @RequestParam BigDecimal amount,
             @RequestParam(required = false, defaultValue = "Refund requested") String reason) {
-        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
-        if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(paymentService.refundPayment(paymentId, amount, reason));
+        requireOwnedPayment(token, paymentId);
+        return paymentService.refundPayment(paymentId, amount, reason);
     }
 
     @GetMapping("/{paymentId}")
     @Operation(summary = "Get payment by ID", description = "Retrieves payment details by ID")
-    public ResponseEntity<?> getPaymentById(
+    public PaymentResponseDTO getPaymentById(
             JwtAuthenticationToken token,
             @PathVariable UUID paymentId) {
-        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
-        if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(payment);
+        return requireOwnedPayment(token, paymentId);
     }
 
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Get payment by order", description = "Retrieves payment for a specific order")
-    public ResponseEntity<?> getPaymentByOrderId(
+    public PaymentResponseDTO getPaymentByOrderId(
             JwtAuthenticationToken token,
             @PathVariable UUID orderId) {
         PaymentResponseDTO payment = paymentService.getPaymentByOrderId(orderId);
         if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new ForbiddenException("You are not allowed to access this payment");
         }
-        return ResponseEntity.ok(payment);
+        return payment;
     }
 
     @GetMapping("/my-payments")
     @Operation(summary = "Get payments by user", description = "Retrieves all payments for the authenticated user")
-    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByUserId(JwtAuthenticationToken token) {
-        UUID userId = extractUserId(token);
-        return ResponseEntity.ok(paymentService.getPaymentsByUserId(userId));
+    public List<PaymentResponseDTO> getPaymentsByUserId(JwtAuthenticationToken token) {
+        return paymentService.getPaymentsByUserId(extractUserId(token));
     }
 
     @GetMapping("/{paymentId}/transactions")
     @Operation(summary = "Get payment transactions", description = "Retrieves transaction history for a payment")
-    public ResponseEntity<?> getPaymentTransactions(
+    public List<PaymentTransaction> getPaymentTransactions(
             JwtAuthenticationToken token,
             @PathVariable UUID paymentId) {
-        PaymentResponseDTO payment = paymentService.getPaymentById(paymentId);
-        if (!isUserAuthorizedForPayment(token, payment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(paymentService.getPaymentTransactions(paymentId));
+        requireOwnedPayment(token, paymentId);
+        return paymentService.getPaymentTransactions(paymentId);
     }
 }

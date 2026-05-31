@@ -1,6 +1,8 @@
 # Eureka Service
 
-Service registry and discovery server. All other services register here on startup and use Eureka to resolve service addresses dynamically.
+Service registry and discovery server. Every other service registers here on startup, and the gateway resolves targets by name (`lb://order-service`) instead of hardcoded hosts.
+
+> Part of the [Scalable E-Commerce Platform](../README.md) study project.
 
 ## Stack
 
@@ -9,46 +11,24 @@ Service registry and discovery server. All other services register here on start
 
 ## Port
 
-`8761`
+`8761` — no database. Dashboard at http://localhost:8761.
 
-## Registered services
+## What to study here
 
-| Service | Port |
-|---------|------|
-| gateway-service | 8080 |
-| user-service | 8081 |
-| product-catalog-service | 8082 |
-| shopping-cart-service | 8083 |
-| notification-service | 8084 |
-| order-service | 8085 |
-| payment-service | 8086 |
+This is the smallest service in the system, and that is the point: it shows **why service
+discovery exists**. In a microservices setup, instances come and go and their addresses
+are not known up front. Instead of wiring fixed hosts/ports everywhere, each service
+registers itself here under a logical name, and callers ask Eureka "where is
+`order-service`?" at runtime. That is what makes the gateway route to `lb://order-service`
+and what makes horizontal scaling possible without config changes.
 
-## Access points
+A couple of deliberate choices worth noticing in the config: this node is a **server**, so
+it does not register with itself (`register-with-eureka: false`, `fetch-registry: false`),
+and **self-preservation is disabled**. Self-preservation is a production safety net that
+keeps "missing" instances in the registry during network blips; turning it off in this
+small study cluster means dead instances disappear quickly, which is friendlier for local
+experimentation but would be risky in production.
 
-- Dashboard: http://localhost:8761
+## Build, run & test
 
-## Running
-
-```powershell
-# Via Docker Compose (recommended)
-cd backend
-docker compose up eureka-service
-
-# Locally
-cd backend/eureka-service
-.\mvnw.cmd spring-boot:run
-```
-
-## Configuration
-
-```yaml
-server:
-  port: 8761
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-  server:
-    enable-self-preservation: false
-```
+See the [root README](../README.md#running-with-docker) — `docker compose up eureka-service` from the repo root.

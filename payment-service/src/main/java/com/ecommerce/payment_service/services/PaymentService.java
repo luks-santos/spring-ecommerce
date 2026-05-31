@@ -5,6 +5,7 @@ import com.ecommerce.payment_service.dto.PaymentResponseDTO;
 import com.ecommerce.payment_service.entities.Payment;
 import com.ecommerce.payment_service.entities.PaymentTransaction;
 import com.ecommerce.payment_service.enums.PaymentStatus;
+import com.ecommerce.payment_service.events.PaymentProcessedEvent;
 import com.ecommerce.payment_service.enums.TransactionType;
 import com.ecommerce.payment_service.exceptions.BadRequestException;
 import com.ecommerce.payment_service.exceptions.ResourceNotFoundException;
@@ -287,12 +288,23 @@ public class PaymentService {
 
     private void publishPaymentEvent(String routingKey, Payment payment) {
         try {
-            PaymentResponseDTO dto = toPaymentResponseDTO(payment);
-            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, routingKey, dto);
-            log.info("Published payment event: {} for payment: {}", routingKey, payment.getId());
+            PaymentProcessedEvent event = PaymentProcessedEvent.of(
+                    payment.getId(), payment.getOrderId(), statusFor(routingKey));
+            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, routingKey, event);
+            log.info("Published payment event: {} ({}) for payment: {}",
+                    routingKey, event.eventId(), payment.getId());
         } catch (Exception e) {
             log.error("Failed to publish payment event: {}", e.getMessage(), e);
         }
+    }
+
+    private String statusFor(String routingKey) {
+        return switch (routingKey) {
+            case PAYMENT_SUCCESS_KEY -> "SUCCESS";
+            case PAYMENT_FAILED_KEY -> "FAILED";
+            case PAYMENT_REFUNDED_KEY -> "REFUNDED";
+            default -> "UNKNOWN";
+        };
     }
 
     private PaymentResponseDTO toPaymentResponseDTO(Payment payment) {

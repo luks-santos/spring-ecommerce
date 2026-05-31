@@ -58,7 +58,8 @@ logging:
 
 springdoc:
   api-docs:
-    path: /api-docs
+    # Exposed through the gateway (no StripPrefix) at /api/payments/v3/api-docs
+    path: /api/payments/v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     enabled: true

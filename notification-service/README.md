@@ -1,6 +1,8 @@
 # Notification Service
 
-Consumes RabbitMQ events and sends notifications via email or console. No REST endpoints exposed.
+Listens to RabbitMQ events and sends notifications by email or console. It has no REST API.
+
+> Part of the [Scalable E-Commerce Platform](../README.md) study project.
 
 ## Stack
 
@@ -12,73 +14,42 @@ Consumes RabbitMQ events and sends notifications via email or console. No REST e
 
 ## Port
 
-`8084`
+`8084` — H2 in-memory database.
 
-## RabbitMQ events consumed
+## What to study here
 
-| Event | Exchange | Routing key | Action |
-|-------|----------|------------|--------|
-| user.registration | user.exchange | user.registration | Sends welcome notification |
-| order.confirmation | order.exchange | order.confirmation | Sends order confirmation notification |
+This service is a **pure event consumer**, which makes it the cleanest example of
+**decoupling side effects** from the request/response path. Sending a welcome email is not
+part of the sign-up HTTP call — `user-service` just publishes a `user.registration` event
+and returns; this service reacts whenever it can. The same goes for `order.confirmation`
+after a payment. The payoff to internalize: the user-facing request stays fast and does not
+fail just because the email system is slow or down.
 
-## Email templates
+It is also a small lesson in **contract evolution**. Producers added shared metadata
+(`eventId`, `correlationId`, `producer`, `occurredAt`) to their events; this consumer keeps
+working because deserialization **ignores unknown fields**. That tolerance is what lets you
+evolve an event without breaking every consumer at once. There is still a known mismatch to
+fix as an exercise — its `UserRegistrationEvent` types `userId` as `Long` while the producer
+sends a `UUID` (issue #11).
 
-Located in `src/main/resources/templates/`:
-- `welcome-email.html`: variables — `fullName`, `username`, `email`, `loginUrl`.
-- `order-confirmation-email.html`: variables — `orderId`, `totalAmount`, `orderStatus`, `orderTrackingUrl`.
-
-## Notification strategies
-
-Controlled by `notification.email.provider` config:
-- `console` (default for development): prints notification to stdout.
-- `gmail`: sends via Gmail SMTP.
+Two more things worth a look: **Thymeleaf templates** drive the HTML emails
+(`welcome-email`, `order-confirmation-email`), and the delivery channel is a **pluggable
+strategy** — `console` (default, prints to stdout, great for local study) or `gmail` (real
+SMTP).
 
 ## Configuration
 
 ```yaml
 notification:
   email:
-    provider: console   # or gmail
+    provider: console   # or "gmail"
     from: noreply@ecommerce.com
-
-# Gmail SMTP (only needed when provider=gmail)
-spring:
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-app-password
 ```
 
-## Environment variables
+For `gmail`, also set `SPRING_MAIL_USERNAME` / `SPRING_MAIL_PASSWORD` (Gmail app password).
+Useful while studying: RabbitMQ management at http://localhost:15672 (guest/guest) to watch
+messages flow.
 
-| Variable | Description |
-|----------|-------------|
-| `SPRING_RABBITMQ_HOST` | RabbitMQ host |
-| `NOTIFICATION_EMAIL_PROVIDER` | `console` or `gmail` |
-| `SPRING_MAIL_USERNAME` | SMTP username (gmail only) |
-| `SPRING_MAIL_PASSWORD` | SMTP password (gmail only) |
+## Build, run & test
 
-## Running
-
-```powershell
-# Via Docker Compose (recommended)
-cd backend
-docker compose up notification-service
-
-# Locally (requires RabbitMQ)
-cd backend/notification-service
-.\mvnw.cmd spring-boot:run
-```
-
-## Tests
-
-```powershell
-cd backend/notification-service
-.\mvnw.cmd test
-```
-
-## Monitoring
-
-- RabbitMQ Management: http://localhost:15672 (guest/guest)
-- H2 Console: http://localhost:8084/h2-console (notification log, dev only)
+See the [root README](../README.md#running-with-docker) — `docker compose up notification-service`, or `cd notification-service && ./mvnw test`.

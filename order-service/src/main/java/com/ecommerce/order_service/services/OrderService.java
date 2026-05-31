@@ -6,6 +6,7 @@ import com.ecommerce.order_service.entities.Order;
 import com.ecommerce.order_service.entities.OrderItem;
 import com.ecommerce.order_service.entities.OrderStatusHistory;
 import com.ecommerce.order_service.enums.OrderStatus;
+import com.ecommerce.order_service.events.OrderCreatedEvent;
 import com.ecommerce.order_service.exceptions.BadRequestException;
 import com.ecommerce.order_service.exceptions.ResourceNotFoundException;
 import com.ecommerce.order_service.repositories.OrderItemRepo;
@@ -92,7 +93,7 @@ public class OrderService {
         order = orderRepo.save(order);
 
         // Publish event
-        publishOrderEvent(ORDER_CREATED_KEY, order);
+        publishOrderCreatedEvent(order);
 
         log.info("Order created successfully: {}", order.getId());
         return toOrderResponseDTO(order);
@@ -328,6 +329,17 @@ public class OrderService {
             default:
                 // No event for other statuses
                 break;
+        }
+    }
+
+    private void publishOrderCreatedEvent(Order order) {
+        try {
+            OrderCreatedEvent event = OrderCreatedEvent.of(
+                    order.getId(), order.getUserId(), order.getTotalAmount());
+            rabbitTemplate.convertAndSend(ORDER_EXCHANGE, ORDER_CREATED_KEY, event);
+            log.info("Published order created event: {} for order: {}", event.eventId(), order.getId());
+        } catch (Exception e) {
+            log.error("Failed to publish order created event: {}", e.getMessage(), e);
         }
     }
 

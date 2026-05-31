@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/gateway-service/**'
+      - 'gateway-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/gateway-service/**'
+      - 'gateway-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependencias
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/gateway-service
+        working-directory: gateway-service
 
       - name: Executar testes unitarios
         run: mvn test
-        working-directory: backend/gateway-service
+        working-directory: gateway-service

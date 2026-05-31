@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:certs/publicKey.pem
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/user/**
+              filters:
+                - StripPrefix=2
+
+            - id: product-catalog-service
+              uri: lb://product-catalog-service
+              predicates:
+                - Path=/api/product-catalog/**
+              filters:
+                - StripPrefix=2
+
+            - id: shopping-cart-service
+              uri: lb://shopping-cart-service
+              predicates:
+                - Path=/api/carts/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders/**
+
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payments/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

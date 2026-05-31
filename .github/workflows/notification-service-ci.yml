@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/notification-service/**'
+      - 'notification-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/notification-service/**'
+      - 'notification-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependencias
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/notification-service
+        working-directory: notification-service
 
       - name: Executar testes unitarios
         run: mvn test
-        working-directory: backend/notification-service
+        working-directory: notification-service

@@ -6,12 +6,12 @@ on:
       - main
       - develop
     paths:
-      - 'backend/payment-service/**'
+      - 'payment-service/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/payment-service/**'
+      - 'payment-service/**'
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
 
       - name: Instalar dependencias
         run: mvn clean install -Ptest -DskipTests
-        working-directory: backend/payment-service
+        working-directory: payment-service
 
       - name: Executar testes unitarios
         run: mvn test
-        working-directory: backend/payment-service
+        working-directory: payment-service

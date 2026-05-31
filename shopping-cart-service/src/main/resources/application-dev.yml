@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: shopping-cart-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:certs/publicKey.pem
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/cart_db}
+    username: ${DB_USER:ecommerce}
+    password: ${DB_PASSWORD:ecommerce}
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+
+  jpa:
+    database: postgresql
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+logging:
+  level:
+    com.ecommerce.shopping_cart_service: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+springdoc:
+  api-docs:
+    # Exposed through the gateway (no StripPrefix) at /api/carts/v3/api-docs
+    path: /api/carts/v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
